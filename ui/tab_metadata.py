@@ -36,7 +36,7 @@ def render_tab_metadata() -> None:
 
     # ── Workflow ──────────────────────────────────────────────────────────────
     with st.container(border=True):
-        st.markdown("### ⚙️ Type de workflow")
+        st.markdown("### Comment est collectée la matière ?")
 
         col_wf, col_wfo = st.columns(2)
 
@@ -57,6 +57,12 @@ def render_tab_metadata() -> None:
             # This prevents an error and forces it to fall back to the last saved choice.
             if workflow is None:
                 workflow = wf_options[current_wf_idx]
+
+            captions_map = {
+                "Standard": "Une seule collecte de matière",
+                "Multi-échantillon": "Plusieur collectes de matière pour une seule caractérisation"
+            }
+            st.caption(captions_map[workflow])
 
         new_wf = wf_options.index(workflow)
         if new_wf != st.session_state.get("saved_workflow"):
@@ -93,6 +99,7 @@ def render_tab_metadata() -> None:
             save_metadata()
 
         # ── General info ──────────────────────────────────────────────────────────
+        st.write("")
         with st.container(border=True):
             st.markdown("### ℹ️ Informations générales")
             c1, c2 = st.columns(2)
@@ -115,6 +122,7 @@ def render_tab_metadata() -> None:
                 )
 
     # ── Collection times ──────────────────────────────────────────────────────
+    st.write("")
     with st.container(border=True):
         st.markdown("### 🕒 Heures de passage sous le capteur WasteFlow")
         _skip_times = st.toggle(

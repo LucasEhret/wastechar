@@ -104,7 +104,7 @@ def render_tab_summary() -> None:
                         pass
 
         with col_reset:
-            if st.button("🆕 Nouvelle saisie", use_container_width=True, type="primary"):
+            if st.button("🆕 Nouvelle saisie", use_container_width=True, type="primary", key="new_entry"):
                 dialog_nouvelle_saisie()
 
         if DEV_MODE:

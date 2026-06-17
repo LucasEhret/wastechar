@@ -1,35 +1,3 @@
-── Segmented controls ─────────────────────────────────────────────────────
-/* Targets: seg_nav · workflow_type_seg · workflow_order_seg                  */
-
-/* :is(.st-key-seg_nav, .st-key-workflow_type_seg, .st-key-workflow_order_seg) {
-    flex-wrap: nowrap !important;
-    overflow-x: auto;
-}
-
-:is(.st-key-seg_nav, .st-key-workflow_type_seg, .st-key-workflow_order_seg) button {
-    background-color: #f1f5f9 !important;
-    border: 2px solid #e2e8f0 !important;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-}
-
-:is(.st-key-seg_nav, .st-key-workflow_type_seg, .st-key-workflow_order_seg)
-    button:is([aria-pressed="true"], [data-active="true"], [aria-selected="true"]) {
-    background-color: #0D3D2E !important;
-    border-color: #0D3D2E !important;
-    border-width: 3px !important;
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-}
-
-:is(.st-key-seg_nav, .st-key-workflow_type_seg, .st-key-workflow_order_seg)
-    button:is([aria-pressed="true"], [data-active="true"], [aria-selected="true"])
-    :is(p, span) {
-    color: white !important;
-    font-weight: 700 !important;
-} */
 .st-key-seg_nav > div, 
 .st-key-seg_nav [data-testid="stSegmentedControl"] {
     height: auto !important;
@@ -59,7 +27,7 @@
 		padding-bottom: 14px !important;
 		height: auto !important;
 		min-height: auto !important;
-        border: 3px solid #333 !important;
+        border: 2px solid #333 !important;
     }	
 .st-key-seg_nav [data-testid="stBaseButton-segmented_controlActive"] p { /* Le texte du bouton actif */
         font-size: 14px;
@@ -91,7 +59,7 @@
 		padding-bottom: 14px !important;
 		height: auto !important;
 		min-height: auto !important;
-        border: 3px solid #333 !important;
+        border: 2px solid #333 !important;
     }	
 .st-key-workflow_type_seg [data-testid="stBaseButton-segmented_controlActive"] p { /* Le texte du bouton actif */
         font-size: 14px;
@@ -123,27 +91,26 @@
 		padding-bottom: 14px !important;
 		height: auto !important;
 		min-height: auto !important;
-        border: 3px solid #333 !important;
+        border: 2px solid #333 !important;
     }	
 .st-key-workflow_order_seg [data-testid="stBaseButton-segmented_controlActive"] p { /* Le texte du bouton actif */
         font-size: 14px;
 		font-weight: bold;
 }
 
-/* .st-key-savebutton button {
-	background-color: black;
+
+.st-key-new_entry button {
+	background-color: #dc3545;
+	border: 2px solid black;
+}
+.st-key-download_summary button {
+	background-color: #2dc5a2;
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid #0D3D2E;
 }
 
-.st-key-savebutton button:hover {
-	background-color: red;
-} */
 
-/* ── Expander headers ─────────────────────────────────────────────────────── */
-/* details summary p {
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-}
- */
 /* ── Global button base style ─────────────────────────────────────────────── */
 div[data-testid="stButton"] > button {
     padding-top: 14px !important;
@@ -151,24 +118,15 @@ div[data-testid="stButton"] > button {
     font-size: 1rem !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
+	border: 2px solid #0D3D2E;
 }
 
-div[data-testid="stButton"] > button[kind="primary"],
-div[data-testid="stDownloadButton"] > button[kind="primary"] {
-    box-shadow: 0 0 0 2px #0D3D2E !important;
+div[data-testid="stButton"]:hover > button {
+	background-color: #1e856d;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+	border: 2px solid #0D3D2E;
 }
-
-/* ── Danger button (secondary button inside the export container) ──────────── */
-/* div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stDownloadButton"])
-    div[data-testid="stButton"] > button {
-    background-color: transparent !important;
-    border: 2px solid #dc3545 !important;
-    color: #dc3545 !important;
-    box-shadow: none !important;
-}
-
-div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stDownloadButton"])
-    div[data-testid="stButton"] > button:hover {
-    background-color: #dc3545 !important;
-    color: white !important;
-} */
