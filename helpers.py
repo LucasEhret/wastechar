@@ -10,6 +10,7 @@ def inject_css() -> None:
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
 
+
 def check_entry_typo(text: str) -> bool:
     parts = text.strip().split()
     if not parts:
