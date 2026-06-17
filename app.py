@@ -12,6 +12,7 @@ from config import (
     load_column_from_csv,
 )
 from session import save_session, restore_session, clear_session
+from helpers import inject_css
 from ui.sidebar import render_sidebar
 from ui.tab_metadata import render_tab_metadata
 from ui.tab_containers import render_tab_containers
@@ -26,62 +27,7 @@ st.set_page_config(
     layout="centered",
 )
 
-st.markdown("""
-<style>
-    div[role="radiogroup"] {
-        gap: 6px;
-        justify-content: center;
-        flex-wrap: nowrap !important;
-        overflow-x: auto;
-    }
-    label[data-baseweb="radio"] {
-        background-color: #f1f5f9;
-        padding: 12px 10px;
-        border-radius: 8px;
-        border: 2px solid #e2e8f0;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-        flex-shrink: 1;
-        min-width: 0;
-    }
-    div[role="radiogroup"] label:has(input:checked) {
-        background-color: #0D3D2E !important;
-        border-color: #0D3D2E !important;
-        color: white !important;
-    }
-    div[role="radiogroup"] label:has(input:checked) p {
-        color: white !important;
-        font-weight: bold;
-    }
-    details summary p {
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-    }
-    div[data-testid="stButton"] > button {
-        padding-top: 14px !important;
-        padding-bottom: 14px !important;
-        font-size: 1rem !important;
-        font-weight: 600 !important;
-        border-radius: 8px !important;
-    }
-    div[data-testid="stButton"] > button[kind="primary"],
-    div[data-testid="stDownloadButton"] > button[kind="primary"] {
-        box-shadow: 0 0 0 2px rgba(0, 48, 39, 0.75) !important;
-    }
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stDownloadButton"])
-        div[data-testid="stButton"] > button {
-        background-color: transparent !important;
-        border: 2px solid #dc3545 !important;
-        color: #dc3545 !important;
-        box-shadow: none !important;
-    }
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stDownloadButton"])
-        div[data-testid="stButton"] > button:hover {
-        background-color: #dc3545 !important;
-        color: white !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+inject_css()
 
 
 # ── AUTHENTICATION ────────────────────────────────────────────────────────────
@@ -183,22 +129,22 @@ if "session_restored" not in st.session_state:
 # ── TITLE & NAVIGATION ────────────────────────────────────────────────────────
 st.title(f"Caractérisation — {_facility}")
 
-TABS = ["Métadonnées ➡️", "Contenants ➡️", "Résultats de pesée ➡️", "Résumé"]
+TABS = ["1. Métadonnées ➡️", "2. Contenants ➡️", "3. Résultats de pesée ➡️", "4. Résumé"]
 
 if "step_index" not in st.session_state:
     st.session_state.step_index = 0
 
 def _sync_nav():
-    st.session_state.step_index = TABS.index(st.session_state.radio_nav)
+    st.session_state.step_index = TABS.index(st.session_state.seg_nav)
 
-st.session_state["radio_nav"] = TABS[st.session_state.step_index]
-st.radio(
+st.session_state["seg_nav"] = TABS[st.session_state.step_index]
+st.segmented_control(
     "Navigation",
     options=TABS,
-    key="radio_nav",
-    horizontal=True,
+    key="seg_nav",
     label_visibility="collapsed",
     on_change=_sync_nav,
+    width="stretch"
 )
 
 

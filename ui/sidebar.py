@@ -107,4 +107,9 @@ def render_sidebar(authenticator) -> None:
             """)
 
         st.link_button("🌐 wasteflow.ai", "https://wasteflow.ai", use_container_width=True)
+        st.link_button(
+            "⏱️ Mesures de temps",
+            "https://deltatgit-e8vsfavsgwkxhq9jw4rzoq.streamlit.app/",
+            use_container_width=True,
+        )
         st.link_button("✉️ Contact", "mailto:lucas.ehret@wasteflow.ai", use_container_width=True)

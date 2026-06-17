@@ -21,10 +21,10 @@ def render_tab_metadata() -> None:
 
         | Option | Description |
         |---|---|
-        | **Ordre A** | Le capteur mesure *avant* la collecte (Capteur ➡️ Collecte ➡️ Pesée) |
-        | **Ordre B** | Le capteur mesure *après* la pesée (Collecte ➡️ Pesée ➡️ Capteur) |
+        | **Ordre A** | Le capteur mesure **avant** la collecte (Capteur ➡️ Collecte ➡️ Pesée) |
+        | **Ordre B** | Le capteur mesure **après** la pesée (Collecte ➡️ Pesée ➡️ Capteur) |
         | **Standard** | 1 seul échantillon |
-        | **Multi-échantillon** | Plusieurs prélèvements distincts |
+        | **Multi-échantillon** | Plusieurs prélèvements distincts (pour une seule caractérisation) |
 
         #### 2. Informations générales
         Renseignez votre nom, la date, le capteur et le nombre d'échantillons.
@@ -38,52 +38,81 @@ def render_tab_metadata() -> None:
     with st.container(border=True):
         st.markdown("### ⚙️ Type de workflow")
 
-        workflow = st.radio(
-            "Type de workflow",
-            options=["Standard", "Multi-échantillon"],
-            index=st.session_state.get("saved_workflow", 0),
-            horizontal=True,
-            key="workflow_type",
-        )
-        new_wf = ["Standard", "Multi-échantillon"].index(workflow)
+        col_wf, col_wfo = st.columns(2)
+
+        with col_wf:
+            wf_options = ["Standard", "Multi-échantillon"]
+            current_wf_idx = st.session_state.get("saved_workflow", 0)
+            
+            # 🌟 Replaced st.radio with st.segmented_control
+            workflow = st.segmented_control(
+                "Type de workflow",
+                options=wf_options,
+                default=wf_options[current_wf_idx], # Uses the value instead of the index
+                key="workflow_type_seg",
+                selection_mode="single"
+            )
+            
+            # Safeguard: st.segmented_control allows deselecting a pill by clicking it again.
+            # This prevents an error and forces it to fall back to the last saved choice.
+            if workflow is None:
+                workflow = wf_options[current_wf_idx]
+
+        new_wf = wf_options.index(workflow)
         if new_wf != st.session_state.get("saved_workflow"):
             st.session_state["saved_workflow"] = new_wf
             save_metadata()
 
-        workflow_order = st.radio(
-            "Ordre de passage",
-            options=["Ordre A", "Ordre B"],
-            index=st.session_state.get("saved_workflow_order", 0),
-            horizontal=True,
-            key="workflow_order",
-            captions=["Capteur ➡️ Collecte ➡️ Pesée", "Collecte ➡️ Pesée ➡️ Capteur"],
-        )
-        new_wfo = ["Ordre A", "Ordre B"].index(workflow_order)
+        with col_wfo:
+            wfo_options = ["Ordre A", "Ordre B"]
+            current_wfo_idx = st.session_state.get("saved_workflow_order", 0)
+            
+            # 🌟 Replaced st.radio with st.segmented_control
+            workflow_order = st.segmented_control(
+                "Ordre de passage",
+                options=wfo_options,
+                default=wfo_options[current_wfo_idx],
+                key="workflow_order_seg",
+                selection_mode="single",
+            )
+            
+            if workflow_order is None:
+                workflow_order = wfo_options[current_wfo_idx]
+                
+            # Note: st.segmented_control doesn't support the 'captions' parameter natively.
+            # We display a clean dynamic caption underneath based on the active selection instead:
+            captions_map = {
+                "Ordre A": "Capteur ➡️ Collecte ➡️ Pesée",
+                "Ordre B": "Collecte ➡️ Pesée ➡️ Capteur"
+            }
+            st.caption(captions_map[workflow_order])
+
+        new_wfo = wfo_options.index(workflow_order)
         if new_wfo != st.session_state.get("saved_workflow_order"):
             st.session_state["saved_workflow_order"] = new_wfo
             save_metadata()
 
-    # ── General info ──────────────────────────────────────────────────────────
-    with st.container(border=True):
-        st.markdown("### ℹ️ Informations générales")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.text_input("Nom *", placeholder="Entrez votre nom",
-                          key="_operator_name", on_change=save_metadata)
-            st.selectbox("Nom du capteur", sensor_list,
-                         key="_sensor_name", index=0, on_change=save_metadata)
-        with c2:
-            st.date_input("Date de prélèvement", key="_test_date", on_change=save_metadata)
-            _is_standard = st.session_state.get("saved_workflow", 0) == 0
-            st.number_input(
-                "Nombre d'échantillons",
-                step=1, min_value=1,
-                max_value=1 if _is_standard else 100,
-                format="%d",
-                key="_nb_sample",
-                disabled=_is_standard,
-                on_change=save_metadata,
-            )
+        # ── General info ──────────────────────────────────────────────────────────
+        with st.container(border=True):
+            st.markdown("### ℹ️ Informations générales")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.text_input("Nom *", placeholder="Entrez votre nom",
+                            key="_operator_name", on_change=save_metadata)
+                st.selectbox("Nom du capteur", sensor_list,
+                            key="_sensor_name", index=0, on_change=save_metadata)
+            with c2:
+                st.date_input("Date de prélèvement", key="_test_date", on_change=save_metadata)
+                _is_standard = st.session_state.get("saved_workflow", 0) == 0
+                st.number_input(
+                    "Nombre d'échantillons",
+                    step=1, min_value=1,
+                    max_value=1 if _is_standard else 100,
+                    format="%d",
+                    key="_nb_sample",
+                    disabled=_is_standard,
+                    on_change=save_metadata,
+                )
 
     # ── Collection times ──────────────────────────────────────────────────────
     with st.container(border=True):
@@ -107,7 +136,7 @@ def render_tab_metadata() -> None:
                         time_text_widget("Heure de fin *", f"_end_{i}", save_metadata)
 
             st.write("")
-            if st.button("💾 Sauvegarder", type="primary", use_container_width=True):
+            if st.button("💾 Sauvegarder", type="primary", use_container_width=True, key="savebutton"):
                 save_metadata()
                 if not st.session_state.get("metadata_error"):
                     st.toast("Métadonnées sauvegardées ✓", icon="✅")
