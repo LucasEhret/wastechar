@@ -1,0 +1,8 @@
+streamlit
+pandas
+matplotlib
+openpyxl
+dropbox
+streamlit-extras
+fpdf2
+streamlit-authenticator==0.3.3
