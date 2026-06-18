@@ -18,6 +18,7 @@ from ui.tab_metadata import render_tab_metadata
 from ui.tab_containers import render_tab_containers
 from ui.tab_weighing import render_tab_weighing
 from ui.tab_summary import render_tab_summary
+from i18n import t
 
 
 # ── PAGE CONFIG ───────────────────────────────────────────────────────────────
@@ -127,9 +128,9 @@ if "session_restored" not in st.session_state:
 
 
 # ── TITLE & NAVIGATION ────────────────────────────────────────────────────────
-st.title(f"Caractérisation — {_facility}")
+st.title(t("app_title", facility=_facility))
 
-TABS = ["1. Métadonnées ➡️", "2. Contenants ➡️", "3. Résultats de pesée ➡️", "4. Résumé"]
+TABS = [t("nav_metadata"),t("nav_containers"),t("nav_weighing"),t("nav_summary"),]
 
 if "step_index" not in st.session_state:
     st.session_state.step_index = 0

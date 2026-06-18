@@ -4,6 +4,7 @@ import streamlit as st
 from config import APP_VERSION, DEV_MODE, WORKFLOW_MAP, ORDER_MAP
 from export import build_zip_export, upload_to_dropbox
 from dialogs import dialog_nouvelle_saisie
+from i18n import t, set_lang, LANGUAGES
 
 
 def render_sidebar(authenticator) -> None:
@@ -12,6 +13,10 @@ def render_sidebar(authenticator) -> None:
     all_facils = st.session_state.get("all_facilities", [])
 
     with st.sidebar:
+        st.selectbox("🌐 Language", LANGUAGES,
+             index=LANGUAGES.index(st.session_state.get("lang", "FR")),
+             on_change=lambda: set_lang(st.session_state["_lang_sel"]),
+             key="_lang_sel", width=100)
         st.image(".streamlit/images/logo-wasteflow-trademark.png", width=180)
         st.markdown(f"## {facility}")
         st.caption(f"👤 Connecté en tant que **{st.session_state['name']}**")

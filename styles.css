@@ -119,6 +119,7 @@ div[data-testid="stButton"] > button {
     font-weight: 600 !important;
     border-radius: 8px !important;
 	border: 2px solid #0D3D2E;
+	color: black !important;
 }
 
 div[data-testid="stButton"]:hover > button {
