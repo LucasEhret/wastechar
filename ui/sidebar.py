@@ -41,7 +41,7 @@ def render_sidebar(authenticator) -> None:
 
         if st.button(
             t("btn_new_session"),
-            use_container_width=True,
+            width="stretch",
             type="secondary",
             help=t("sidebar_new_session_help"),
             key="new_session"

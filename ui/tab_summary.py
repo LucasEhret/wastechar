@@ -19,7 +19,7 @@ def render_tab_summary() -> None:
 
     if st.session_state["df_weighings"].empty:
         st.info(t("summ_no_data"))
-        if st.button(t("btn_back"), use_container_width=True):
+        if st.button(t("btn_back"), width="stretch"):
             st.session_state.step_index = 2
             st.rerun()
         return
@@ -35,7 +35,7 @@ def render_tab_summary() -> None:
     total_net  = df_summary["Poids net"].sum() if not df_summary.empty else 0.0
     st.subheader(t("summ_dashboard_title"))
     st.metric(t("summ_total_metric"), f"{total_net:.2f} kg")
-    st.dataframe(df_summary, hide_index=True, use_container_width=True)
+    st.dataframe(df_summary, hide_index=True, width="stretch")
 
     # Pie chart
     with st.container(border=True):
@@ -62,7 +62,7 @@ def render_tab_summary() -> None:
             df_s = st.session_state["df_weighings"][
                 st.session_state["df_weighings"]["N° échantillon"] == sample_id
             ]
-            st.dataframe(summarize_by_material(df_s), hide_index=True, use_container_width=True)
+            st.dataframe(summarize_by_material(df_s), hide_index=True, width="stretch")
 
     # Completeness check
     missing = get_missing_classes()
@@ -75,7 +75,7 @@ def render_tab_summary() -> None:
     # Export & reset
     with st.container(border=True):
         st.subheader(t("summ_export_title"))
-        col_export, col_reset = st.columns([1.5, 1])
+        col_export, col_reset = st.columns([1, 1])
 
         with col_export:
             if st.download_button(
@@ -83,7 +83,7 @@ def render_tab_summary() -> None:
                 data=zip_data,
                 file_name=f"{base_name}.zip",
                 mime="application/zip",
-                use_container_width=True,
+                width="stretch",
                 type="primary",
                 key="download_summary",
             ) and not DEV_MODE:
@@ -95,7 +95,7 @@ def render_tab_summary() -> None:
                         pass
 
         with col_reset:
-            if st.button(t("btn_new_entry"), use_container_width=True, type="primary", key="new_entry"):
+            if st.button(t("btn_new_entry"), width="stretch", type="primary", key="new_entry"):
                 dialog_nouvelle_saisie()
 
         if DEV_MODE:

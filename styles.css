@@ -1,3 +1,27 @@
+/* ── Global button base style ─────────────────────────────────────────────── */
+div[data-testid="stButton"] > button {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+	border: 2px solid #0D3D2E;
+	color: black !important;
+}
+
+div[data-testid="stButton"]:hover > button {
+	background-color: #1e856d;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+	border: 2px solid #0D3D2E;
+}
+
+
+
+/* Segmented control TABS ───────────────────────────────────────────────*/
 .st-key-seg_nav > div, 
 .st-key-seg_nav [data-testid="stSegmentedControl"] {
     height: auto !important;
@@ -33,8 +57,6 @@
         font-size: 14px;
 		font-weight: bold;
 }
-
-
 
 .st-key-workflow_type_seg [data-testid="stBaseButton-segmented_control"] { /* Le bouton inactif lui-même */
         background-color: white !important;
@@ -94,73 +116,85 @@
         border: 2px solid #333 !important;
     }	
 .st-key-workflow_order_seg [data-testid="stBaseButton-segmented_controlActive"] p { /* Le texte du bouton actif */
-        font-size: 14px;
-		font-weight: bold;
+	font-size: 14px;
+	font-weight: bold;
 }
 
-
-.st-key-new_entry button {
+/* TABS: sidebar ───────────────────────────────────────────────*/
+.st-key-new_session button { /*sidebar */
 	background-color: #dc3545;
-	border: 2px solid black;
-}
-.st-key-new_entry button:hover {
-	background-color: #8a202a !important;
-	border: 2px solid black;
-	color: white !important;
-}
-.st-key-download_summary button {
-	background-color: #2dc5a2;
 	padding-top: 14px !important;
 	padding-bottom: 14px !important;
-	border: 2px solid #0D3D2E;
-}
-.st-key-download_summary button:hover {
-	background-color: #1e856d !important; 
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
-	border: 2px solid #0D3D2E;
-}
-
-.st-key-new_session button {
-	background-color: #dc3545 !important;
-	border: 2px solid black !important;
+	border: 2px solid black;
+	font-weight: bold !important;
 }
 .st-key-new_session button:hover {
-    background-color: #8a202a !important; /* Un vert un peu plus foncé pour l'effet de survol */
-    color: white !important;
+	background-color: #8a202a !important; 
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid black;
+	font-weight: bold;
+}
+.st-key-new_session button:hover p {
+	font-weight: bold;
+	color: white
 }
 
 .st-key-download_sidebar button {
 	background-color: #2dc5a2;
 	padding-top: 14px !important;
 	padding-bottom: 14px !important;
-	border: 2px solid #0D3D2E;
+	border: 2px solid black;
 }
 .st-key-download_sidebar button:hover {
 	background-color: #1e856d !important; 
 	padding-top: 14px !important;
 	padding-bottom: 14px !important;
-	border: 2px solid #0D3D2E;
+	border: 2px solid black;
 }
 
+/* TABS: Metaddonnées ───────────────────────────────────────────────*/
 
-/* ── Global button base style ─────────────────────────────────────────────── */
-div[data-testid="stButton"] > button {
-    padding-top: 14px !important;
-    padding-bottom: 14px !important;
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-    border-radius: 8px !important;
-	border: 2px solid #0D3D2E;
-	color: black !important;
+/* TABS: Contenants ───────────────────────────────────────────────*/
+
+/* TABS: Résultats ───────────────────────────────────────────────*/
+
+/* TABS: Summary ───────────────────────────────────────────────*/
+
+.st-key-new_entry button { /*summary tab */
+	background-color: #dc3545;
+	height: auto !important;
+    min-height: auto !important;
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid black;
+	display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+}
+.st-key-new_entry button:hover {
+	background-color: #8a202a !important;
+	height: auto !important;
+    min-height: auto !important;
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid black;
+}
+.st-key-new_entry button:hover p {
+	font-weight: bold;
+	color: white
 }
 
-div[data-testid="stButton"]:hover > button {
-	background-color: #1e856d;
-    padding-top: 14px !important;
-    padding-bottom: 14px !important;
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-    border-radius: 8px !important;
-	border: 2px solid #0D3D2E;
+.st-key-download_summary button {
+	background-color: #2dc5a2;
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid black;
+}
+.st-key-download_summary button:hover {
+	background-color: #1e856d !important; 
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid black;
 }
