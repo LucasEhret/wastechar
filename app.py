@@ -23,7 +23,7 @@ from i18n import t
 
 # ── PAGE CONFIG ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Résultat de caractérisation",
+    page_title=t("page_title"),
     page_icon=".streamlit/images/eye-wasteflow.png",
     layout="centered",
 )
@@ -49,10 +49,10 @@ authenticator = stauth.Authenticate(
 authenticator.login(location="main")
 
 if st.session_state.get("authentication_status") is False:
-    st.error("Identifiant ou mot de passe incorrect.")
+    st.error(t("auth_wrong"))
     st.stop()
 elif st.session_state.get("authentication_status") is None:
-    st.info("Veuillez vous connecter pour accéder au formulaire.")
+    st.info(t("auth_prompt"))
     st.stop()
 
 # Resolve facility and lists from logged-in user

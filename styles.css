@@ -103,8 +103,41 @@
 	background-color: #dc3545;
 	border: 2px solid black;
 }
+.st-key-new_entry button:hover {
+	background-color: #8a202a !important;
+	border: 2px solid black;
+	color: white !important;
+}
 .st-key-download_summary button {
 	background-color: #2dc5a2;
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid #0D3D2E;
+}
+.st-key-download_summary button:hover {
+	background-color: #1e856d !important; 
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid #0D3D2E;
+}
+
+.st-key-new_session button {
+	background-color: #dc3545 !important;
+	border: 2px solid black !important;
+}
+.st-key-new_session button:hover {
+    background-color: #8a202a !important; /* Un vert un peu plus foncé pour l'effet de survol */
+    color: white !important;
+}
+
+.st-key-download_sidebar button {
+	background-color: #2dc5a2;
+	padding-top: 14px !important;
+	padding-bottom: 14px !important;
+	border: 2px solid #0D3D2E;
+}
+.st-key-download_sidebar button:hover {
+	background-color: #1e856d !important; 
 	padding-top: 14px !important;
 	padding-bottom: 14px !important;
 	border: 2px solid #0D3D2E;
