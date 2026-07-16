@@ -86,7 +86,7 @@ def render_tab_summary() -> None:
                 width="stretch",
                 type="primary",
                 key="download_summary",
-            ) and not DEV_MODE:
+            ) and not DEV_MODE and st.session_state.get("dropbox_upload_enabled", True):
                 with st.spinner(t("dropbox_uploading")):
                     try:
                         if upload_to_dropbox(zip_data, f"{base_name}.zip"):

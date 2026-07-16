@@ -34,6 +34,9 @@ def render_sidebar(authenticator) -> None:
                     key="_preview_facility",
                     label_visibility="collapsed",
                 )
+                if "dropbox_upload_enabled" not in st.session_state:
+                    st.session_state["dropbox_upload_enabled"] = True
+                st.checkbox(t("sidebar_dropbox_upload"), key="dropbox_upload_enabled")
             # st.divider()
 
         
@@ -87,10 +90,10 @@ def render_sidebar(authenticator) -> None:
                 data=zip_data,
                 file_name=f"{base_name}.zip",
                 mime="application/zip",
-                use_container_width=True,
+                width="stretch",
                 type="primary",
                 key="download_sidebar"
-            ) and not DEV_MODE:
+            ) and not DEV_MODE and st.session_state.get("dropbox_upload_enabled", True):
                 with st.spinner(t("dropbox_uploading")):
                     try:
                         if upload_to_dropbox(zip_data, f"{base_name}.zip"):
@@ -109,10 +112,10 @@ def render_sidebar(authenticator) -> None:
             st.info(t("sidebar_guide_intro"))
             st.markdown(t("sidebar_guide_body"))
 
-        st.link_button("🌐 wasteflow.ai", "https://wasteflow.ai", use_container_width=True)
+        st.link_button("🌐 wasteflow.ai", "https://wasteflow.ai", width="stretch")
         st.link_button(
             t("btn_timing_app"),
             "https://deltatgit-e8vsfavsgwkxhq9jw4rzoq.streamlit.app/",
-            use_container_width=True,
+            width="stretch",
         )
-        st.link_button("✉️ Contact", "mailto:lucas.ehret@wasteflow.ai", use_container_width=True)
+        st.link_button("✉️ Contact", "mailto:lucas.ehret@wasteflow.ai", width="stretch")

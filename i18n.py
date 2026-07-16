@@ -83,6 +83,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
 """,
         "sidebar_preview_as":   "Voir en tant que :",
         "sidebar_version":      "Version : {version}",
+        "sidebar_dropbox_upload": "📤 Envoyer sur Dropbox",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guide — Métadonnées",
@@ -328,6 +329,7 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
 """,
         "sidebar_preview_as":   "View as:",
         "sidebar_version":      "Version: {version}",
+        "sidebar_dropbox_upload": "📤 Upload to Dropbox",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guide — Metadata",
@@ -573,6 +575,7 @@ The file is also automatically sent to Dropbox.
 """,
         "sidebar_preview_as":   "Ver como:",
         "sidebar_version":      "Versión: {version}",
+        "sidebar_dropbox_upload": "☁️ Subir a Dropbox",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guía — Metadatos",
