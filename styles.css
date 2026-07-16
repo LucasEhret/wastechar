@@ -21,103 +21,67 @@ div[data-testid="stButton"]:hover > button {
 
 
 
-/* Segmented control TABS ───────────────────────────────────────────────*/
+/* ==========================================================================
+   Segmented Controls (Streamlit 1.59+)
+   Cible : seg_nav, workflow_type_seg, workflow_order_seg
+   ========================================================================== */
+
+/* 1. CONTENEUR PARENT ────────────────────────────────────────────────────── */
 .st-key-seg_nav > div, 
-.st-key-seg_nav [data-testid="stSegmentedControl"] {
+.st-key-workflow_type_seg > div,
+.st-key-workflow_order_seg > div {
     height: auto !important;
-    align-items: center !important; /* Aligne les boutons sur une même ligne sans les étirer de force */
+    align-items: center !important; /* Aligne les boutons sur une même ligne */
 }
 
-.st-key-seg_nav [data-testid="stBaseButton-segmented_control"] { /* Le bouton inactif lui-même */
-        background-color: white !important;
-        color: black !important; /* Pour que le texte reste lisible sur fond noir */
-		padding-top: 14px !important;
-		padding-bottom: 14px !important;
-		height: auto !important;
-		min-height: auto !important;
-		display: inline-flex !important;
-		align-items: center !important;
-		justify-content: center !important;
-        border: 1px solid #333 !important;
-}
-.st-key-seg_nav [data-testid="stBaseButton-segmented_control"] p { /* Le texte du bouton */
-	font-size: 12px;
-}
-
-.st-key-seg_nav [data-testid="stBaseButton-segmented_controlActive"] { /* Le bouton actif lui-même */
-        background-color: #2dc5a2 !important; 
-        color: black !important;
-		padding-top: 14px !important;
-		padding-bottom: 14px !important;
-		height: auto !important;
-		min-height: auto !important;
-        border: 2px solid #333 !important;
-    }	
-.st-key-seg_nav [data-testid="stBaseButton-segmented_controlActive"] p { /* Le texte du bouton actif */
-        font-size: 14px;
-		font-weight: bold;
+/* 2. BOUTONS INACTIFS (Style par défaut) ─────────────────────────────────── */
+.st-key-seg_nav button[data-variant="segmented_control"],
+.st-key-workflow_type_seg button[data-variant="segmented_control"],
+.st-key-workflow_order_seg button[data-variant="segmented_control"] {
+    background-color: white !important;
+    color: black !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    height: auto !important;
+    min-height: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid #333 !important;
 }
 
-.st-key-workflow_type_seg [data-testid="stBaseButton-segmented_control"] { /* Le bouton inactif lui-même */
-        background-color: white !important;
-        color: black !important; /* Pour que le texte reste lisible sur fond noir */
-		padding-top: 14px !important;
-		padding-bottom: 14px !important;
-		height: auto !important;
-		min-height: auto !important;
-		display: inline-flex !important;
-		align-items: center !important;
-		justify-content: center !important;
-        border: 1px solid #333 !important;
-}
-.st-key-workflow_type_seg [data-testid="stBaseButton-segmented_control"] p { /* Le texte du bouton */
-	font-size: 12px;
+/* Texte bouton inactif */
+.st-key-seg_nav button[data-variant="segmented_control"] p,
+.st-key-workflow_type_seg button[data-variant="segmented_control"] p,
+.st-key-workflow_order_seg button[data-variant="segmented_control"] p {
+    font-size: 12px !important;
+    margin: 0 !important; /* Évite les décalages de marge */
 }
 
-.st-key-workflow_type_seg [data-testid="stBaseButton-segmented_controlActive"] { /* Le bouton actif lui-même */
-        background-color: #2dc5a2 !important; 
-        color: black !important;
-		padding-top: 14px !important;
-		padding-bottom: 14px !important;
-		height: auto !important;
-		min-height: auto !important;
-        border: 2px solid #333 !important;
-    }	
-.st-key-workflow_type_seg [data-testid="stBaseButton-segmented_controlActive"] p { /* Le texte du bouton actif */
-        font-size: 14px;
-		font-weight: bold;
-}
+/* 3. BOUTONS ACTIFS (Sélectionnés) ───────────────────────────────────────── */
+.st-key-seg_nav button[data-variant="segmented_control"][data-selected="true"],
+.st-key-workflow_type_seg button[data-variant="segmented_control"][data-selected="true"],
+.st-key-workflow_order_seg button[data-variant="segmented_control"][data-selected="true"] {
+    background-color: #2dc5a2 !important; 
+    color: black !important;
+    
+    /* On passe à 13px de padding pour compenser la bordure qui passe de 1px à 2px. 
+       Cela permet de garder exactement la même hauteur totale entre actif et inactif ! */
+    padding-top: 13px !important;
+    padding-bottom: 13px !important;
+    
+    height: auto !important;
+    min-height: auto !important;
+    border: 2px solid #333 !important;
+} 
 
-
-
-.st-key-workflow_order_seg [data-testid="stBaseButton-segmented_control"] { /* Le bouton inactif lui-même */
-        background-color: white !important;
-        color: black !important; /* Pour que le texte reste lisible sur fond noir */
-		padding-top: 14px !important;
-		padding-bottom: 14px !important;
-		height: auto !important;
-		min-height: auto !important;
-		display: inline-flex !important;
-		align-items: center !important;
-		justify-content: center !important;
-        border: 1px solid #333 !important;
-}
-.st-key-workflow_order_seg [data-testid="stBaseButton-segmented_control"] p { /* Le texte du bouton */
-	font-size: 12px;
-}
-
-.st-key-workflow_order_seg [data-testid="stBaseButton-segmented_controlActive"] { /* Le bouton actif lui-même */
-        background-color: #2dc5a2 !important; 
-        color: black !important;
-		padding-top: 14px !important;
-		padding-bottom: 14px !important;
-		height: auto !important;
-		min-height: auto !important;
-        border: 2px solid #333 !important;
-    }	
-.st-key-workflow_order_seg [data-testid="stBaseButton-segmented_controlActive"] p { /* Le texte du bouton actif */
-	font-size: 14px;
-	font-weight: bold;
+/* Texte bouton actif */
+.st-key-seg_nav button[data-variant="segmented_control"][data-selected="true"] p,
+.st-key-workflow_type_seg button[data-variant="segmented_control"][data-selected="true"] p,
+.st-key-workflow_order_seg button[data-variant="segmented_control"][data-selected="true"] p {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    margin: 0 !important;
 }
 
 /* TABS: sidebar ───────────────────────────────────────────────*/
