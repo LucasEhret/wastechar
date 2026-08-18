@@ -37,6 +37,7 @@ div[data-testid="stButton"]:hover > button {
 /* 2. BOUTONS INACTIFS (Style par défaut) ─────────────────────────────────── */
 .st-key-seg_nav button[data-variant="segmented_control"],
 .st-key-workflow_type_seg button[data-variant="segmented_control"],
+.st-key-weighing_mode_seg button[data-variant="segmented_control"],
 .st-key-workflow_order_seg button[data-variant="segmented_control"] {
     background-color: white !important;
     color: black !important;
@@ -53,6 +54,7 @@ div[data-testid="stButton"]:hover > button {
 /* Texte bouton inactif */
 .st-key-seg_nav button[data-variant="segmented_control"] p,
 .st-key-workflow_type_seg button[data-variant="segmented_control"] p,
+.st-key-weighing_mode_seg button[data-variant="segmented_control"] p,
 .st-key-workflow_order_seg button[data-variant="segmented_control"] p {
     font-size: 12px !important;
     margin: 0 !important; /* Évite les décalages de marge */
@@ -61,6 +63,7 @@ div[data-testid="stButton"]:hover > button {
 /* 3. BOUTONS ACTIFS (Sélectionnés) ───────────────────────────────────────── */
 .st-key-seg_nav button[data-variant="segmented_control"][data-selected="true"],
 .st-key-workflow_type_seg button[data-variant="segmented_control"][data-selected="true"],
+.st-key-weighing_mode_seg button[data-variant="segmented_control"][data-selected="true"],
 .st-key-workflow_order_seg button[data-variant="segmented_control"][data-selected="true"] {
     background-color: #2dc5a2 !important; 
     color: black !important;
@@ -78,6 +81,7 @@ div[data-testid="stButton"]:hover > button {
 /* Texte bouton actif */
 .st-key-seg_nav button[data-variant="segmented_control"][data-selected="true"] p,
 .st-key-workflow_type_seg button[data-variant="segmented_control"][data-selected="true"] p,
+.st-key-weighing_mode_seg button[data-variant="segmented_control"][data-selected="true"] p,
 .st-key-workflow_order_seg button[data-variant="segmented_control"][data-selected="true"] p {
     font-size: 14px !important;
     font-weight: bold !important;

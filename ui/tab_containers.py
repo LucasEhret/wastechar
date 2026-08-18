@@ -5,8 +5,9 @@ from i18n import t
 
 
 def render_tab_containers() -> None:
-    with st.expander(t("cont_guide_title"), expanded=True):
-        st.markdown(t("cont_guide_body"))
+    if st.session_state.get("show_tutorials", True):
+        with st.expander(t("cont_guide_title"), expanded=True):
+            st.markdown(t("cont_guide_body"))
 
     col_left, col_right = st.columns(2, gap="small")
 
@@ -29,7 +30,7 @@ def render_tab_containers() -> None:
             st.write("")
             st.button(
                 t("cont_add_btn"),
-                use_container_width=True,
+                width="stretch",
                 on_click=add_container,
                 key="add_container_button",
                 type="primary",
@@ -57,10 +58,10 @@ def render_tab_containers() -> None:
     st.write("")
     col_back, col_next = st.columns(2)
     with col_back:
-        if st.button(t("btn_back"), use_container_width=True):
+        if st.button(t("btn_back"), width="stretch"):
             st.session_state.step_index = 0
             st.rerun()
     with col_next:
-        if st.button(t("btn_next_weighing"), use_container_width=True, type="primary"):
+        if st.button(t("btn_next_weighing"), width="stretch", type="primary"):
             st.session_state.step_index = 2
             st.rerun()

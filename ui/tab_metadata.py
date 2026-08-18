@@ -9,9 +9,10 @@ def render_tab_metadata() -> None:
     sensor_list = st.session_state.get("sensor_list", [])
     init_metadata_widget_state()
 
-    with st.expander(t("meta_guide_title"), expanded=True):
-        st.image(".streamlit/images/process carac.png", width="stretch")
-        st.markdown(t("meta_guide_body"))
+    if st.session_state.get("show_tutorials", True):
+        with st.expander(t("meta_guide_title"), expanded=True):
+            st.image(".streamlit/images/process carac.png", width="stretch")
+            st.markdown(t("meta_guide_body"))
 
     # ── Workflow ──────────────────────────────────────────────────────────────
     with st.container(border=True):
@@ -113,7 +114,7 @@ def render_tab_metadata() -> None:
                         time_text_widget(t("meta_end_time"), f"_end_{i}", save_metadata)
 
             st.write("")
-            if st.button(t("btn_save"), type="primary", use_container_width=True, key="savebutton"):
+            if st.button(t("btn_save"), type="primary", width="stretch", key="savebutton"):
                 save_metadata()
                 if not st.session_state.get("metadata_error"):
                     st.toast(t("meta_saved_toast"), icon="✅")
@@ -144,7 +145,7 @@ def render_tab_metadata() -> None:
     st.write("")
     _, col_next = st.columns(2)
     with col_next:
-        if st.button(t("btn_next_containers"), use_container_width=True, type="primary"):
+        if st.button(t("btn_next_containers"), width="stretch", type="primary"):
             save_metadata()
             st.session_state.step_index = 1
             st.rerun()

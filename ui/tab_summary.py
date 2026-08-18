@@ -13,9 +13,10 @@ from i18n import t
 def render_tab_summary() -> None:
     facility = st.session_state.get("facility_name", "")
 
-    with st.expander(t("summ_guide_title"), expanded=True):
-        st.markdown(t("summ_guide_body"))
-        st.success(t("summ_guide_tip"))
+    if st.session_state.get("show_tutorials", True):
+        with st.expander(t("summ_guide_title"), expanded=True):
+            st.markdown(t("summ_guide_body"))
+            st.success(t("summ_guide_tip"))
 
     if st.session_state["df_weighings"].empty:
         st.info(t("summ_no_data"))

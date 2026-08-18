@@ -54,24 +54,24 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "btn_delete":           "✕",
         "btn_edit":             "✏️",
         "btn_download":         "⬇️ Télécharger (Excel + PDF + photos)",
-        "btn_dropbox":          "☁️ Sauvegarder sur Dropbox",
-        "btn_new_session":      "🔄 Nouvelle session",
-        "btn_new_entry":        "🆕 Nouvelle saisie",
-        "btn_logout":           "🚪 Se déconnecter",
-        "btn_timing_app":       "⏱️ Mesures de temps",
+        "btn_dropbox":          "Sauvegarder sur Dropbox",
+        "btn_new_session":      "Nouvelle session",
+        "btn_new_entry":        "Nouvelle saisie",
+        "btn_logout":           "Se déconnecter",
+        "btn_timing_app":       "⏱Mesures de temps",
 
         # Sidebar
-        "sidebar_config_title": "### 📌 Configuration active",
+        "sidebar_config_title": "### Configuration active",
         "sidebar_operator":     "Opérateur",
         "sidebar_date":         "Date",
         "sidebar_sensor":       "Capteur",
         "sidebar_workflow":     "Workflow",
         "sidebar_weighings":    "Pesées enregistrées",
         "sidebar_export_title": "### 💾 Sauvegarde",
-        "sidebar_no_data":      "📦 L'export s'activera ici dès qu'une pesée sera enregistrée.",
+        "sidebar_no_data":      "L'export s'activera ici dès qu'une pesée sera enregistrée.",
         "sidebar_new_session_help": "Réinitialiser pour un nouveau test",
-        "sidebar_guide_title":  "📖 Guide d'utilisation rapide",
-        "sidebar_guide_intro":  "💡 Suivez les 4 étapes dans l'ordre via la barre de navigation en haut.",
+        "sidebar_guide_title":  "Guide d'utilisation rapide",
+        "sidebar_guide_intro":  "Suivez les 4 étapes dans l'ordre via la barre de navigation en haut.",
         "sidebar_guide_body":   """
 **1️⃣ Métadonnées** — Workflow, informations, heures de passage sous le capteur.
 
@@ -84,6 +84,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "sidebar_preview_as":   "Voir en tant que :",
         "sidebar_version":      "Version : {version}",
         "sidebar_dropbox_upload": "📤 Envoyer sur Dropbox",
+        "sidebar_show_tutorials": "Afficher les tutoriels",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guide — Métadonnées",
@@ -97,8 +98,8 @@ sont sauvegardées automatiquement ; le bouton **💾 Sauvegarder** force une sa
 
 | Option | Description |
 |---|---|
-| **Ordre A** | Le capteur mesure **avant** la collecte (Capteur ➡️ Collecte ➡️ Pesée) |
-| **Ordre B** | Le capteur mesure **après** la pesée (Collecte ➡️ Pesée ➡️ Capteur) |
+| **Standard** | Le capteur mesure **avant** la collecte (Capteur ➡️ Collecte ➡️ Pesée) |
+| **Inverse** | Le capteur mesure **après** la pesée (Collecte ➡️ Pesée ➡️ Capteur) |
 | **Standard** | 1 seul échantillon |
 | **Multi-échantillon** | Plusieurs prélèvements distincts (pour une seule caractérisation) |
 
@@ -110,30 +111,30 @@ Pour chaque échantillon, indiquez l'heure de début et de fin de passage sous l
 Formats acceptés : `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
 """,
         "meta_workflow_container_title": "### Comment est collectée la matière ?",
-        "meta_workflow_title":  "### ⚙️ Type de workflow",
+        "meta_workflow_title":  "### Type de workflow",
         "meta_workflow_label":  "Type de workflow",
         "meta_wf_standard":     "Standard",
         "meta_wf_multi":        "Multi-échantillon",
         "meta_wf_standard_caption": "Une seule collecte de matière",
         "meta_wf_multi_caption": "Plusieurs collectes de matière pour une seule caractérisation",
         "meta_order_label":     "Ordre de passage",
-        "meta_wfo_order_a":     "Ordre A",
-        "meta_wfo_order_b":     "Ordre B",
+        "meta_wfo_order_a":     "Standard",
+        "meta_wfo_order_b":     "Inverse",
         "meta_order_a_caption": "Capteur ➡️ Collecte ➡️ Pesée",
         "meta_order_b_caption": "Collecte ➡️ Pesée ➡️ Capteur",
-        "meta_info_title":      "### ℹ️ Informations générales",
+        "meta_info_title":      "### Informations générales",
         "meta_operator_name":   "Nom *",
         "meta_operator_ph":     "Entrez votre nom",
         "meta_sensor":          "Nom du capteur",
         "meta_date":            "Date de prélèvement",
         "meta_nb_samples":      "Nombre d'échantillons",
-        "meta_times_title":     "### 🕒 Heures de passage sous le capteur WasteFlow",
+        "meta_times_title":     "### Heures de passage sous le capteur WasteFlow",
         "meta_skip_toggle":     "Ne pas renseigner d'heures de collecte maintenant",
         "meta_skip_caption":    "Les heures de collecte ne seront pas renseignées.",
-        "meta_sample_label":    "📦 Échantillon {n}",
+        "meta_sample_label":    "Échantillon {n}",
         "meta_start_time":      "Heure de début *",
         "meta_end_time":        "Heure de fin *",
-        "meta_recap_title":     "📋 **Récapitulatif des plages horaires**",
+        "meta_recap_title":     "**Récapitulatif des plages horaires**",
         "meta_recap_empty":     "Aucune plage horaire enregistrée.",
         "meta_recap_sample":    "Échantillon",
         "meta_recap_date":      "Date",
@@ -157,8 +158,8 @@ Leur poids à vide (tare) est automatiquement soustrait pour calculer le **poids
 
 > Si vous ne pesez pas dans un contenant, **laissez cet onglet vide** — le poids brut sera égal au poids net.
 """,
-        "cont_add_title":       "### 📥 Ajout de contenant",
-        "cont_list_title":      "### 📋 Contenants enregistrés",
+        "cont_add_title":       "### Ajout de contenant",
+        "cont_list_title":      "### Contenants enregistrés",
         "cont_name_label":      "Identificateur du contenant",
         "cont_name_ph":         "Ex: Carton A, Bac Bleu 1...",
         "cont_weight_label":    "Poids à vide (kg)",
@@ -190,6 +191,15 @@ Cliquez sur **✕** pour supprimer une ligne ou **✏️** pour la modifier.
 > Si le bouton **Ajouter la pesée** est grisé, vérifiez que les heures de
 prélèvement sont renseignées dans **Métadonnées** (ou activez le mode sans heures).
 """,
+        "weigh_mode_label":     "Mode de saisie",
+        "weigh_mode_table":     "Tableau",
+        "weigh_mode_manual":    "Manuel",
+        "weigh_table_title":    "### Saisie par tableau",
+        "weigh_table_no_classes": "Aucune classe de matériau configurée pour cette installation.",
+        "weigh_table_save_btn": "💾 Enregistrer les données",
+        "weigh_table_saved_toast": "Pesées enregistrées !",
+        "weigh_table_error_empty": "Veuillez saisir au moins un poids brut.",
+        "weigh_table_error_no_sample": "Veuillez choisir un numéro d'échantillon pour chaque ligne pesée.",
         "weigh_hist_samples":   "Échantillon(s)",
         "weigh_hist_tare":      "Tarage",
         "weigh_hist_gross":     "Brut",
@@ -208,7 +218,7 @@ prélèvement sont renseignées dans **Métadonnées** (ou activez le mode sans 
         "weigh_added_toast":    "Pesée ajoutée !",
         "weigh_obs_title":      "### Observations",
         "weigh_obs_ph":         "Ajoutez ici toute remarque sur la session.",
-        "weigh_history_title":  "📋 Historique des pesées ({n})",
+        "weigh_history_title":  "Historique des pesées ({n})",
         "weigh_history_empty":  "Aucune pesée enregistrée.",
         "weigh_edit_help":      "Modifier",
         "weigh_delete_help":    "Supprimer",
@@ -240,10 +250,10 @@ Cet onglet affiche un tableau de bord complet une fois les pesées saisies.
 Le fichier est aussi envoyé automatiquement sur Dropbox.
 """,
         "summ_guide_tip":       "✅ Téléchargez toujours le fichier avant de lancer une nouvelle saisie.",
-        "summ_dashboard_title": "📊 Tableau de bord",
+        "summ_dashboard_title": "Tableau de bord",
         "summ_total_metric":    "Masse totale enregistrée",
         "summ_chart_title":     "Répartition par classe de matériau",
-        "summ_sample_detail":   "📋 Détail par échantillon",
+        "summ_sample_detail":   "Détail par échantillon",
         "summ_sample_label":    "Échantillon {id}",
         "summ_missing_warning": "⚠️ **{n} classe(s) sans pesée :**",
         "summ_export_title":    "📤 Clôture de la session",
@@ -300,24 +310,24 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "btn_delete":           "✕",
         "btn_edit":             "✏️",
         "btn_download":         "⬇️ Download (Excel + PDF + photos)",
-        "btn_dropbox":          "☁️ Save to Dropbox",
-        "btn_new_session":      "🔄 New session",
-        "btn_new_entry":        "🆕 New entry",
-        "btn_logout":           "🚪 Log out",
-        "btn_timing_app":       "⏱️ Time measurements",
+        "btn_dropbox":          "Save to Dropbox",
+        "btn_new_session":      "New session",
+        "btn_new_entry":        "New entry",
+        "btn_logout":           "Log out",
+        "btn_timing_app":       "⏱Time measurements",
 
         # Sidebar
-        "sidebar_config_title": "### 📌 Active configuration",
+        "sidebar_config_title": "### Active configuration",
         "sidebar_operator":     "Operator",
         "sidebar_date":         "Date",
         "sidebar_sensor":       "Sensor",
         "sidebar_workflow":     "Workflow",
         "sidebar_weighings":    "Recorded weighings",
         "sidebar_export_title": "### 💾 Save",
-        "sidebar_no_data":      "📦 Export will appear here once a weighing is recorded.",
+        "sidebar_no_data":      "Export will appear here once a weighing is recorded.",
         "sidebar_new_session_help": "Reset for a new test",
-        "sidebar_guide_title":  "📖 Quick user guide",
-        "sidebar_guide_intro":  "💡 Follow the 4 steps in order using the navigation bar at the top.",
+        "sidebar_guide_title":  "Quick user guide",
+        "sidebar_guide_intro":  "Follow the 4 steps in order using the navigation bar at the top.",
         "sidebar_guide_body":   """
 **1️⃣ Metadata** — Workflow, operator info, sensor passage times.
 
@@ -330,6 +340,7 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "sidebar_preview_as":   "View as:",
         "sidebar_version":      "Version: {version}",
         "sidebar_dropbox_upload": "📤 Upload to Dropbox",
+        "sidebar_show_tutorials": "Show tutorials",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guide — Metadata",
@@ -343,8 +354,8 @@ the **💾 Save** button forces a manual save.
 
 | Option | Description |
 |---|---|
-| **Order A** | Sensor measures **before** collection (Sensor ➡️ Collection ➡️ Weighing) |
-| **Order B** | Sensor measures **after** weighing (Collection ➡️ Weighing ➡️ Sensor) |
+| **Standard** | Sensor measures **before** collection (Sensor ➡️ Collection ➡️ Weighing) |
+| **Inverse** | Sensor measures **after** weighing (Collection ➡️ Weighing ➡️ Sensor) |
 | **Standard** | 1 sample only |
 | **Multi-sample** | Multiple distinct collections (for a single characterization) |
 
@@ -356,30 +367,30 @@ For each sample, enter the start and end time of passage under the sensor.
 Accepted formats: `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
 """,
         "meta_workflow_container_title": "### How is the material collected?",
-        "meta_workflow_title":  "### ⚙️ Workflow type",
+        "meta_workflow_title":  "### Workflow type",
         "meta_workflow_label":  "Workflow type",
         "meta_wf_standard":     "Standard",
         "meta_wf_multi":        "Multi-sample",
         "meta_wf_standard_caption": "A single material collection",
         "meta_wf_multi_caption": "Multiple material collections for a single characterization",
         "meta_order_label":     "Passage order",
-        "meta_wfo_order_a":     "Order A",
-        "meta_wfo_order_b":     "Order B",
+        "meta_wfo_order_a":     "Standard",
+        "meta_wfo_order_b":     "Inverse",
         "meta_order_a_caption": "Sensor ➡️ Collection ➡️ Weighing",
         "meta_order_b_caption": "Collection ➡️ Weighing ➡️ Sensor",
-        "meta_info_title":      "### ℹ️ General information",
+        "meta_info_title":      "### General information",
         "meta_operator_name":   "Name *",
         "meta_operator_ph":     "Enter your name",
         "meta_sensor":          "Sensor name",
         "meta_date":            "Sampling date",
         "meta_nb_samples":      "Number of samples",
-        "meta_times_title":     "### 🕒 Passage times under the WasteFlow sensor",
+        "meta_times_title":     "### Passage times under the WasteFlow sensor",
         "meta_skip_toggle":     "Do not enter collection times now",
         "meta_skip_caption":    "Collection times will not be recorded.",
-        "meta_sample_label":    "📦 Sample {n}",
+        "meta_sample_label":    "Sample {n}",
         "meta_start_time":      "Start time *",
         "meta_end_time":        "End time *",
-        "meta_recap_title":     "📋 **Collection time summary**",
+        "meta_recap_title":     "**Collection time summary**",
         "meta_recap_empty":     "No time slots recorded.",
         "meta_recap_sample":    "Sample",
         "meta_recap_date":      "Date",
@@ -403,8 +414,8 @@ Their empty weight (tare) is automatically subtracted to calculate the **net wei
 
 > If you are not weighing in a container, **leave this tab empty** — the gross weight will equal the net weight.
 """,
-        "cont_add_title":       "### 📥 Add container",
-        "cont_list_title":      "### 📋 Registered containers",
+        "cont_add_title":       "### Add container",
+        "cont_list_title":      "### Registered containers",
         "cont_name_label":      "Container identifier",
         "cont_name_ph":         "E.g. Box A, Blue Bin 1...",
         "cont_weight_label":    "Empty weight (kg)",
@@ -436,6 +447,15 @@ Click **✕** to delete a row or **✏️** to edit it.
 > If the **Add weighing** button is greyed out, make sure collection times are
 filled in under **Metadata** (or enable the no-times mode).
 """,
+        "weigh_mode_label":     "Entry mode",
+        "weigh_mode_table":     "Table",
+        "weigh_mode_manual":    "Manual",
+        "weigh_table_title":    "### Table entry",
+        "weigh_table_no_classes": "No material class configured for this facility.",
+        "weigh_table_save_btn": "💾 Save data",
+        "weigh_table_saved_toast": "Weighings saved!",
+        "weigh_table_error_empty": "Please enter at least one gross weight.",
+        "weigh_table_error_no_sample": "Please select a sample number for every weighed row.",
         "weigh_hist_samples":   "Sample(s)",
         "weigh_hist_tare":      "Tare",
         "weigh_hist_gross":     "Gross",
@@ -454,7 +474,7 @@ filled in under **Metadata** (or enable the no-times mode).
         "weigh_added_toast":    "Weighing added!",
         "weigh_obs_title":      "### Observations",
         "weigh_obs_ph":         "Add any remarks about this session here.",
-        "weigh_history_title":  "📋 Weighing history ({n})",
+        "weigh_history_title":  "Weighing history ({n})",
         "weigh_history_empty":  "No weighings recorded.",
         "weigh_edit_help":      "Edit",
         "weigh_delete_help":    "Delete",
@@ -486,10 +506,10 @@ This tab shows a complete dashboard once weighings have been entered.
 The file is also automatically sent to Dropbox.
 """,
         "summ_guide_tip":       "✅ Always download the file before starting a new entry.",
-        "summ_dashboard_title": "📊 Dashboard",
+        "summ_dashboard_title": "Dashboard",
         "summ_total_metric":    "Total recorded mass",
         "summ_chart_title":     "Distribution by material class",
-        "summ_sample_detail":   "📋 Detail by sample",
+        "summ_sample_detail":   "Detail by sample",
         "summ_sample_label":    "Sample {id}",
         "summ_missing_warning": "⚠️ **{n} class(es) with no weighing:**",
         "summ_export_title":    "📤 Close session",
@@ -526,7 +546,7 @@ The file is also automatically sent to Dropbox.
         "page_title":           "Resultado de caracterización",
         "app_title":            "Caracterización — {facility}",
         "app_version":          "Versión: {version}",
-        "dev_mode_warning":     "🛠️ MODO DEV — Dropbox desactivado.",
+        "dev_mode_warning":     "MODO DEV — Dropbox desactivado.",
 
         # Navigation tabs
         "nav_metadata":         "Metadatos ➡️",
@@ -546,24 +566,24 @@ The file is also automatically sent to Dropbox.
         "btn_delete":           "✕",
         "btn_edit":             "✏️",
         "btn_download":         "⬇️ Descargar (Excel + PDF + fotos)",
-        "btn_dropbox":          "☁️ Guardar en Dropbox",
-        "btn_new_session":      "🔄 Nueva sesión",
-        "btn_new_entry":        "🆕 Nueva entrada",
-        "btn_logout":           "🚪 Cerrar sesión",
-        "btn_timing_app":       "⏱️ Mediciones de tiempo",
+        "btn_dropbox":          "Guardar en Dropbox",
+        "btn_new_session":      "Nueva sesión",
+        "btn_new_entry":        "Nueva entrada",
+        "btn_logout":           "Cerrar sesión",
+        "btn_timing_app":       "⏱Mediciones de tiempo",
 
         # Sidebar
-        "sidebar_config_title": "### 📌 Configuración activa",
+        "sidebar_config_title": "### Configuración activa",
         "sidebar_operator":     "Operador",
         "sidebar_date":         "Fecha",
         "sidebar_sensor":       "Sensor",
         "sidebar_workflow":     "Flujo de trabajo",
         "sidebar_weighings":    "Pesajes registrados",
         "sidebar_export_title": "### 💾 Guardar",
-        "sidebar_no_data":      "📦 La exportación estará disponible aquí cuando se registre un pesaje.",
+        "sidebar_no_data":      "La exportación estará disponible aquí cuando se registre un pesaje.",
         "sidebar_new_session_help": "Reiniciar para una nueva prueba",
-        "sidebar_guide_title":  "📖 Guía de uso rápido",
-        "sidebar_guide_intro":  "💡 Siga los 4 pasos en orden usando la barra de navegación de arriba.",
+        "sidebar_guide_title":  "Guía de uso rápido",
+        "sidebar_guide_intro":  "Siga los 4 pasos en orden usando la barra de navegación de arriba.",
         "sidebar_guide_body":   """
 **1️⃣ Metadatos** — Flujo de trabajo, información del operador, tiempos de paso por el sensor.
 
@@ -575,7 +595,8 @@ The file is also automatically sent to Dropbox.
 """,
         "sidebar_preview_as":   "Ver como:",
         "sidebar_version":      "Versión: {version}",
-        "sidebar_dropbox_upload": "☁️ Subir a Dropbox",
+        "sidebar_dropbox_upload": "Subir a Dropbox",
+        "sidebar_show_tutorials": "Mostrar los tutoriales",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guía — Metadatos",
@@ -589,8 +610,8 @@ el botón **💾 Guardar** fuerza un guardado manual.
 
 | Opción | Descripción |
 |---|---|
-| **Orden A** | El sensor mide **antes** de la recogida (Sensor ➡️ Recogida ➡️ Pesaje) |
-| **Orden B** | El sensor mide **después** del pesaje (Recogida ➡️ Pesaje ➡️ Sensor) |
+| **Estándar** | El sensor mide **antes** de la recogida (Sensor ➡️ Recogida ➡️ Pesaje) |
+| **Contrarrestar** | El sensor mide **después** del pesaje (Recogida ➡️ Pesaje ➡️ Sensor) |
 | **Estándar** | 1 solo muestreo |
 | **Multi-muestra** | Varias recogidas distintas (para una sola caracterización) |
 
@@ -602,30 +623,30 @@ Para cada muestra, indique la hora de inicio y fin de paso bajo el sensor.
 Formatos aceptados: `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
 """,
         "meta_workflow_container_title": "### ¿Cómo se recoge el material?",
-        "meta_workflow_title":  "### ⚙️ Tipo de flujo de trabajo",
+        "meta_workflow_title":  "### Tipo de flujo de trabajo",
         "meta_workflow_label":  "Tipo de flujo de trabajo",
         "meta_wf_standard":     "Estándar",
         "meta_wf_multi":        "Multi-muestra",
         "meta_wf_standard_caption": "Una sola recogida de material",
         "meta_wf_multi_caption": "Varias recogidas de material para una sola caracterización",
         "meta_order_label":     "Orden de paso",
-        "meta_wfo_order_a":     "Orden A",
-        "meta_wfo_order_b":     "Orden B",
+        "meta_wfo_order_a":     "Estándar",
+        "meta_wfo_order_b":     "Contrarrestar",
         "meta_order_a_caption": "Sensor ➡️ Recogida ➡️ Pesaje",
         "meta_order_b_caption": "Recogida ➡️ Pesaje ➡️ Sensor",
-        "meta_info_title":      "### ℹ️ Información general",
+        "meta_info_title":      "### Información general",
         "meta_operator_name":   "Nombre *",
         "meta_operator_ph":     "Introduzca su nombre",
         "meta_sensor":          "Nombre del sensor",
         "meta_date":            "Fecha de muestreo",
         "meta_nb_samples":      "Número de muestras",
-        "meta_times_title":     "### 🕒 Tiempos de paso bajo el sensor WasteFlow",
+        "meta_times_title":     "### Tiempos de paso bajo el sensor WasteFlow",
         "meta_skip_toggle":     "No introducir tiempos de recogida ahora",
         "meta_skip_caption":    "Los tiempos de recogida no se registrarán.",
-        "meta_sample_label":    "📦 Muestra {n}",
+        "meta_sample_label":    "Muestra {n}",
         "meta_start_time":      "Hora de inicio *",
         "meta_end_time":        "Hora de fin *",
-        "meta_recap_title":     "📋 **Resumen de franjas horarias**",
+        "meta_recap_title":     "**Resumen de franjas horarias**",
         "meta_recap_empty":     "No hay franjas horarias registradas.",
         "meta_recap_sample":    "Muestra",
         "meta_recap_date":      "Fecha",
@@ -649,8 +670,8 @@ Su peso vacío (tara) se resta automáticamente para calcular el **peso neto**.
 
 > Si no pesa en un contenedor, **deje esta pestaña vacía** — el peso bruto será igual al peso neto.
 """,
-        "cont_add_title":       "### 📥 Añadir contenedor",
-        "cont_list_title":      "### 📋 Contenedores registrados",
+        "cont_add_title":       "### Añadir contenedor",
+        "cont_list_title":      "### Contenedores registrados",
         "cont_name_label":      "Identificador del contenedor",
         "cont_name_ph":         "P. ej. Caja A, Bidón Azul 1...",
         "cont_weight_label":    "Peso vacío (kg)",
@@ -682,6 +703,15 @@ Haga clic en **✕** para eliminar una fila o **✏️** para editarla.
 > Si el botón **Añadir pesaje** está desactivado, asegúrese de que los tiempos de
 recogida estén rellenos en **Metadatos** (o active el modo sin tiempos).
 """,
+        "weigh_mode_label":     "Modo de entrada",
+        "weigh_mode_table":     "Tabla",
+        "weigh_mode_manual":    "Manual",
+        "weigh_table_title":    "### Entrada por tabla",
+        "weigh_table_no_classes": "No hay ninguna clase de material configurada para esta instalación.",
+        "weigh_table_save_btn": "💾 Guardar los datos",
+        "weigh_table_saved_toast": "¡Pesajes guardados!",
+        "weigh_table_error_empty": "Por favor, introduzca al menos un peso bruto.",
+        "weigh_table_error_no_sample": "Por favor, seleccione un número de muestra para cada línea pesada.",
         "weigh_hist_samples":   "Muestra(s)",
         "weigh_hist_tare":      "Tara",
         "weigh_hist_gross":     "Bruto",
@@ -700,7 +730,7 @@ recogida estén rellenos en **Metadatos** (o active el modo sin tiempos).
         "weigh_added_toast":    "¡Pesaje añadido!",
         "weigh_obs_title":      "### Observaciones",
         "weigh_obs_ph":         "Añada aquí cualquier comentario sobre la sesión.",
-        "weigh_history_title":  "📋 Historial de pesajes ({n})",
+        "weigh_history_title":  "Historial de pesajes ({n})",
         "weigh_history_empty":  "No hay pesajes registrados.",
         "weigh_edit_help":      "Editar",
         "weigh_delete_help":    "Eliminar",
@@ -732,10 +762,10 @@ Esta pestaña muestra un panel de control completo una vez introducidos los pesa
 El archivo también se envía automáticamente a Dropbox.
 """,
         "summ_guide_tip":       "✅ Descargue siempre el archivo antes de iniciar una nueva entrada.",
-        "summ_dashboard_title": "📊 Panel de control",
+        "summ_dashboard_title": "Panel de control",
         "summ_total_metric":    "Masa total registrada",
         "summ_chart_title":     "Distribución por clase de material",
-        "summ_sample_detail":   "📋 Detalle por muestra",
+        "summ_sample_detail":   "Detalle por muestra",
         "summ_sample_label":    "Muestra {id}",
         "summ_missing_warning": "⚠️ **{n} clase(s) sin pesaje:**",
         "summ_export_title":    "📤 Cierre de sesión",

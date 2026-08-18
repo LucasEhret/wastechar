@@ -1,6 +1,6 @@
 import uuid
 import datetime as dt
-
+import openpyxl
 import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
@@ -88,7 +88,7 @@ DEFAULTS: dict = {
     "saved_sensor_name":   sensor_list[0] if sensor_list else "",
     "saved_nb_sample":     1,
     "image_uploader_key":  0,
-    "skip_collect_times":  False,
+    "show_tutorials":      True,
     "global_comment":      "",
     "saved_workflow":      0,
     "weighing_version":    0,
@@ -116,6 +116,13 @@ DEFAULTS: dict = {
 for key, value in DEFAULTS.items():
     if key not in st.session_state:
         st.session_state[key] = value
+
+# The "skip collect times" toggle only renders on the Metadata tab, so Streamlit
+# purges its widget-bound session_state key whenever another tab is shown. Re-seed
+# it from the durable copy (kept in sync by _on_skip_collect_times_change) instead
+# of resetting the user's choice back to False every time they navigate away.
+if "skip_collect_times" not in st.session_state:
+    st.session_state["skip_collect_times"] = st.session_state.get("_skip_collect_times_value", False)
 
 
 # ── SESSION PERSISTENCE ───────────────────────────────────────────────────────

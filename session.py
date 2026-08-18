@@ -35,7 +35,7 @@ def save_session() -> None:
                 "nb_sample":          st.session_state.get("saved_nb_sample", 1),
                 "date":               str(st.session_state.get("saved_test_date", dt.date.today())),
                 "global_comment":     st.session_state.get("global_comment", ""),
-                "skip_collect_times": st.session_state.get("skip_collect_times", False),
+                "skip_collect_times": st.session_state.get("_skip_collect_times_value", False),
             },
         }
         _session_file().write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")

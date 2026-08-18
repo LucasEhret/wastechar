@@ -180,7 +180,7 @@ def generate_pdf_report() -> bytes:
             self.set_text_color(140, 140, 140)
             self.cell(
                 0, 6,
-                text=f"WasteFlow App {APP_VERSION}  |  Exporté le {dt.datetime.now().strftime('%d/%m/%Y à %H:%M')}",
+                txt=f"WasteFlow App {APP_VERSION}  |  Exporté le {dt.datetime.now().strftime('%d/%m/%Y à %H:%M')}",
                 align="C",
             )
             self.set_text_color(0, 0, 0)
@@ -192,18 +192,18 @@ def generate_pdf_report() -> bytes:
 
     # Header
     pdf.set_font("Helvetica", "B", 18)
-    pdf.cell(0, 12, text="Rapport de Caractérisation", align="C")
+    pdf.cell(0, 12, txt="Rapport de Caractérisation", align="C")
     pdf.ln(12)
     pdf.set_font("Helvetica", "I", 11)
-    pdf.cell(0, 6, text=f"Site : {facility}  |  Opérateur : {operator}  |  Date : {date_str}", align="C")
+    pdf.cell(0, 6, txt=f"Site : {facility}  |  Opérateur : {operator}  |  Date : {date_str}", align="C")
     pdf.ln(6)
-    pdf.cell(0, 6, text=f"Capteur : {sensor}  |  Workflow : {workflow_label}", align="C")
+    pdf.cell(0, 6, txt=f"Capteur : {sensor}  |  Workflow : {workflow_label}", align="C")
     pdf.ln(12)
 
     # 1. Global indicators
     sec += 1
     pdf.set_font("Helvetica", "B", 14)
-    pdf.cell(0, 10, text=f"{sec}. Indicateurs Globaux")
+    pdf.cell(0, 10, txt=f"{sec}. Indicateurs Globaux")
     pdf.ln(10)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(5)
@@ -213,54 +213,54 @@ def generate_pdf_report() -> bytes:
         f"- Masse brute totale : {total_poids_brut:.3f} kg",
         f"- Masse nette totale triée : {total_poids_net:.3f} kg",
     ]:
-        pdf.cell(0, 7, text=line)
+        pdf.cell(0, 7, txt=line)
         pdf.ln(7)
 
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(0, 7, text="- Classes présentes :")
+    pdf.cell(0, 7, txt="- Classes présentes :")
     pdf.ln(7)
     pdf.set_font("Helvetica", size=10)
-    pdf.multi_cell(0, 6, text="  " + (", ".join(classes_present) if classes_present else "Aucune"))
+    pdf.multi_cell(0, 6, txt="  " + (", ".join(classes_present) if classes_present else "Aucune"))
     pdf.set_x(pdf.l_margin)
 
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(0, 7, text="- Classes sans données :")
+    pdf.cell(0, 7, txt="- Classes sans données :")
     pdf.ln(7)
     pdf.set_font("Helvetica", "I", 10)
-    pdf.multi_cell(0, 6, text="  " + (", ".join(classes_absent) if classes_absent else "Aucune"))
+    pdf.multi_cell(0, 6, txt="  " + (", ".join(classes_absent) if classes_absent else "Aucune"))
     pdf.set_x(pdf.l_margin)
 
     if global_comment:
         pdf.ln(2)
         pdf.set_font("Helvetica", "B", 11)
-        pdf.cell(0, 7, text="- Commentaire général :")
+        pdf.cell(0, 7, txt="- Commentaire général :")
         pdf.ln(7)
         pdf.set_font("Helvetica", "I", 10)
-        pdf.multi_cell(0, 6, text=f"  {global_comment}")
+        pdf.multi_cell(0, 6, txt=f"  {global_comment}")
         pdf.set_x(pdf.l_margin)
 
     # 2. Collection times
     df_times = st.session_state.get("df_collect_times", pd.DataFrame())
-    if not df_times.empty and not st.session_state.get("skip_collect_times", False):
+    if not df_times.empty and not st.session_state.get("_skip_collect_times_value", False):
         sec += 1
         pdf.ln(6)
         pdf.set_font("Helvetica", "B", 14)
-        pdf.cell(0, 10, text=f"{sec}. Plages Horaires de Collecte")
+        pdf.cell(0, 10, txt=f"{sec}. Plages Horaires de Collecte")
         pdf.ln(10)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.ln(4)
         pdf.set_font("Helvetica", "B", 10)
         for header, w in [("Echantillon", 30), ("Date", 40), ("Heure de début", 60), ("Heure de fin", 60)]:
-            pdf.cell(w, 8, text=header, border=1, align="C")
+            pdf.cell(w, 8, txt=header, border=1, align="C")
         pdf.ln(8)
         pdf.set_font("Helvetica", size=10)
         for _, row in df_times.iterrows():
             dv = row["Date"]
             ds = dv.strftime('%d/%m/%Y') if hasattr(dv, 'strftime') else str(dv)
-            pdf.cell(30, 7, text=str(row["Echantillon"]),    border=1, align="C")
-            pdf.cell(40, 7, text=ds,                          border=1, align="C")
-            pdf.cell(60, 7, text=str(row["Heure de début"]), border=1, align="C")
-            pdf.cell(60, 7, text=str(row["Heure de fin"]),   border=1, align="C")
+            pdf.cell(30, 7, txt=str(row["Echantillon"]),    border=1, align="C")
+            pdf.cell(40, 7, txt=ds,                          border=1, align="C")
+            pdf.cell(60, 7, txt=str(row["Heure de début"]), border=1, align="C")
+            pdf.cell(60, 7, txt=str(row["Heure de fin"]),   border=1, align="C")
             pdf.ln(7)
         pdf.ln(4)
 
@@ -269,25 +269,25 @@ def generate_pdf_report() -> bytes:
         sec += 1
         pdf.ln(4)
         pdf.set_font("Helvetica", "B", 14)
-        pdf.cell(0, 10, text=f"{sec}. Répartition par Classe de Matériau")
+        pdf.cell(0, 10, txt=f"{sec}. Répartition par Classe de Matériau")
         pdf.ln(10)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.ln(4)
         pdf.set_font("Helvetica", "B", 10)
-        pdf.cell(95, 8, text="Classe de matériau", border=1, align="C")
-        pdf.cell(47, 8, text="Poids net (kg)", border=1, align="C")
-        pdf.cell(48, 8, text="% Masse totale", border=1, align="C")
+        pdf.cell(95, 8, txt="Classe de matériau", border=1, align="C")
+        pdf.cell(47, 8, txt="Poids net (kg)", border=1, align="C")
+        pdf.cell(48, 8, txt="% Masse totale", border=1, align="C")
         pdf.ln(8)
         pdf.set_font("Helvetica", size=10)
         for _, row in df_summary.iterrows():
-            pdf.cell(95, 7, text=str(row["Classe de matériau"]), border=1)
-            pdf.cell(47, 7, text=f"{row['Poids net']:.3f}", border=1, align="R")
-            pdf.cell(48, 7, text=f"{row['Pourcentage de la masse totale']:.1f} %", border=1, align="R")
+            pdf.cell(95, 7, txt=str(row["Classe de matériau"]), border=1)
+            pdf.cell(47, 7, txt=f"{row['Poids net']:.3f}", border=1, align="R")
+            pdf.cell(48, 7, txt=f"{row['Pourcentage de la masse totale']:.1f} %", border=1, align="R")
             pdf.ln(7)
         pdf.set_font("Helvetica", "B", 10)
-        pdf.cell(95, 7, text="TOTAL", border=1, align="C")
-        pdf.cell(47, 7, text=f"{total_poids_net:.3f}", border=1, align="R")
-        pdf.cell(48, 7, text="100.0 %", border=1, align="R")
+        pdf.cell(95, 7, txt="TOTAL", border=1, align="C")
+        pdf.cell(47, 7, txt=f"{total_poids_net:.3f}", border=1, align="R")
+        pdf.cell(48, 7, txt="100.0 %", border=1, align="R")
         pdf.ln(10)
 
         # Pie chart
@@ -318,7 +318,7 @@ def generate_pdf_report() -> bytes:
         except Exception:
             pass
 
-    return bytes(pdf.output())
+    return pdf.output(dest="S").encode("latin1")
 
 
 def build_zip_export() -> io.BytesIO:

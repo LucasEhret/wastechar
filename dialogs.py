@@ -11,13 +11,13 @@ def dialog_nouvelle_saisie() -> None:
         "Cette opération est irréversible."
     )
     col1, col2 = st.columns(2)
-    if col1.button("Confirmer", type="primary", use_container_width=True):
+    if col1.button("Confirmer", type="primary", width="stretch"):
         clear_session()
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.query_params.clear()
         st.rerun()
-    if col2.button("Annuler", use_container_width=True):
+    if col2.button("Annuler", width="stretch"):
         st.rerun()
 
 
@@ -63,7 +63,7 @@ def dialog_modifier_pesee(row_idx: int) -> None:
     col_save, col_cancel = st.columns(2)
 
     with col_save:
-        if st.button("💾 Enregistrer", type="primary", use_container_width=True):
+        if st.button("💾 Enregistrer", type="primary", width="stretch"):
             if not new_samples:
                 st.error("⚠️ Veuillez choisir au moins un échantillon.")
                 return
@@ -94,5 +94,5 @@ def dialog_modifier_pesee(row_idx: int) -> None:
             st.rerun()
 
     with col_cancel:
-        if st.button("❌ Annuler", use_container_width=True):
+        if st.button("❌ Annuler", width="stretch"):
             st.rerun()

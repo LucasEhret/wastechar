@@ -239,7 +239,92 @@ def add_weighing() -> None:
     st.rerun()
 
 
+def add_weighings_from_table(edited_df: pd.DataFrame) -> None:
+    rows_to_save = edited_df[edited_df["Poids brut"].notna()]
+
+    if rows_to_save.empty:
+        st.session_state["weighing_error"] = "Veuillez saisir au moins un poids brut."
+        return
+    if rows_to_save["N° échantillon"].isna().any():
+        st.session_state["weighing_error"] = (
+            "Veuillez choisir un numéro d'échantillon pour chaque ligne pesée."
+        )
+        return
+
+    # Rows unchanged since their last save are skipped so re-clicking "Save data"
+    # on an otherwise untouched table doesn't duplicate weighings — the table is
+    # kept filled in after saving instead of being cleared.
+    saved_signatures = st.session_state.setdefault("weighing_table_saved_signatures", {})
+
+    new_rows = []
+    new_signatures = {}
+    for _, row in rows_to_save.iterrows():
+        material_class  = row["Classe de matériau"]
+        sample_id       = int(row["N° échantillon"])
+        container_used  = row["Contenant utilisé"]
+        gross_weight    = float(row["Poids brut"])
+        signature       = (container_used, sample_id, gross_weight)
+
+        if saved_signatures.get(material_class) == signature:
+            continue
+
+        tare_weight = get_container_weight(container_used) if container_used != "Pas de contenant" else 0.0
+        net_weight  = gross_weight - tare_weight
+
+        if net_weight < 0:
+            st.session_state["weighing_error"] = (
+                f"Le poids net calculé est négatif ({net_weight:.3f} kg) pour "
+                f"'{material_class}'. Vérifiez le contenant sélectionné et le poids saisi."
+            )
+            return
+
+        times = get_sample_collect_times(sample_id)
+        new_rows.append({
+            "N° échantillon":     str(sample_id),
+            "Début":              times["Début"] if times else None,
+            "Fin":                times["Fin"]   if times else None,
+            "Classe de matériau": material_class,
+            "Contenant utilisé":  "" if container_used == "Pas de contenant" else container_used,
+            "Poids brut":         gross_weight,
+            "Poids net":          net_weight,
+            "Image":              None,
+        })
+        new_signatures[material_class] = signature
+
+    if not new_rows:
+        st.session_state["weighing_error"] = ""
+        st.toast("Aucune nouvelle pesée à enregistrer.", icon="ℹ️")
+        return
+
+    new_df = pd.DataFrame(new_rows).astype({"Poids brut": float, "Poids net": float})
+    if st.session_state["df_weighings"].empty:
+        st.session_state["df_weighings"] = new_df
+    else:
+        st.session_state["df_weighings"] = pd.concat(
+            [st.session_state["df_weighings"], new_df], ignore_index=True
+        )
+    saved_signatures.update(new_signatures)
+
+    st.toast("Pesées enregistrées !", icon="⚖️")
+    st.session_state["weighing_error"] = ""
+    save_session()
+
+
 def delete_weighing(idx: int) -> None:
+    row = st.session_state["df_weighings"].loc[idx]
+    saved_signatures = st.session_state.get("weighing_table_saved_signatures", {})
+    material_class = row["Classe de matériau"]
+    try:
+        signature = (
+            row["Contenant utilisé"] or "Pas de contenant",
+            int(row["N° échantillon"]),
+            float(row["Poids brut"]),
+        )
+    except (TypeError, ValueError):
+        signature = None
+    if signature is not None and saved_signatures.get(material_class) == signature:
+        del saved_signatures[material_class]
+
     st.session_state["df_weighings"] = (
         st.session_state["df_weighings"]
         .drop(index=idx)
@@ -247,7 +332,6 @@ def delete_weighing(idx: int) -> None:
     )
     st.session_state["weighing_error"] = ""
     save_session()
-    st.rerun()
 
 
 # ── SUMMARY ───────────────────────────────────────────────────────────────────

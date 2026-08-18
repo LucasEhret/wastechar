@@ -17,12 +17,13 @@ def render_sidebar(authenticator) -> None:
              index=LANGUAGES.index(st.session_state.get("lang", "FR")),
              on_change=lambda: set_lang(st.session_state["_lang_sel"]),
              key="_lang_sel", width=100)
+        st.toggle(t("sidebar_show_tutorials"), key="show_tutorials")
         st.divider()
         st.image(".streamlit/images/logo-wasteflow-trademark.png", width=180)
         st.caption(t("sidebar_version", version=APP_VERSION))
         st.markdown(f"## {facility}")
         st.caption(t("auth_connected_as", name=st.session_state["name"]))
-        authenticator.logout(t("btn_logout"), location="sidebar")
+        authenticator.logout(t("btn_logout"), location="sidebar", use_container_width=True)
         # st.divider()
 
         if is_admin:
