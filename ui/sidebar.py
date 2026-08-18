@@ -23,7 +23,7 @@ def render_sidebar(authenticator) -> None:
         st.caption(t("sidebar_version", version=APP_VERSION))
         st.markdown(f"## {facility}")
         st.caption(t("auth_connected_as", name=st.session_state["name"]))
-        authenticator.logout(t("btn_logout"), location="sidebar", use_container_width=True)
+        authenticator.logout(t("btn_logout"), location="sidebar", width="stretch")
         # st.divider()
 
         if is_admin:
