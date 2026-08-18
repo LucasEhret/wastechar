@@ -14,7 +14,7 @@ SENSORS_FILE   = ".streamlit/ressources/list_sensors.csv"
 
 # ── WORKFLOW MAPS ─────────────────────────────────────────────────────────────
 WORKFLOW_MAP = {0: "Standard", 1: "Multi-échantillon"}
-ORDER_MAP    = {0: "A", 1: "B"}
+ORDER_MAP    = {0: "Standard", 1: "Inverse"}
 
 # ── TEMP STORAGE ──────────────────────────────────────────────────────────────
 TEMP_DIR = Path(tempfile.gettempdir()) / "wastechar_sessions"
