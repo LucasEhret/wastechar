@@ -318,7 +318,8 @@ def generate_pdf_report() -> bytes:
         except Exception:
             pass
 
-    return pdf.output(dest="S").encode("latin1")
+    #return pdf.output(dest="S").encode("latin1")
+    return bytes(pdf.output())
 
 
 def build_zip_export() -> io.BytesIO:
