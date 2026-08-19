@@ -3,7 +3,6 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import streamlit as st
 
-from config import DEV_MODE
 from data import summarize_by_material, get_missing_classes
 from dialogs import dialog_nouvelle_saisie
 from export import build_zip_export, upload_to_dropbox
@@ -87,7 +86,7 @@ def render_tab_summary() -> None:
                 width="stretch",
                 type="primary",
                 key="download_summary",
-            ) and not DEV_MODE and st.session_state.get("dropbox_upload_enabled", True):
+            ) and st.session_state.get("dropbox_upload_enabled", True):
                 with st.spinner(t("dropbox_uploading")):
                     try:
                         if upload_to_dropbox(zip_data, f"{base_name}.zip"):
@@ -98,6 +97,3 @@ def render_tab_summary() -> None:
         with col_reset:
             if st.button(t("btn_new_entry"), width="stretch", type="primary", key="new_entry"):
                 dialog_nouvelle_saisie()
-
-        if DEV_MODE:
-            st.info(t("dev_mode_warning"))

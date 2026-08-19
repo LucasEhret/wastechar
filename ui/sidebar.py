@@ -1,7 +1,7 @@
 import datetime as dt
 import streamlit as st
 
-from config import APP_VERSION, DEV_MODE, ORDER_MAP
+from config import APP_VERSION, ORDER_MAP
 from export import build_zip_export, upload_to_dropbox
 from dialogs import dialog_nouvelle_saisie
 from i18n import t, set_lang, LANGUAGES
@@ -94,16 +94,13 @@ def render_sidebar(authenticator) -> None:
                 width="stretch",
                 type="primary",
                 key="download_sidebar"
-            ) and not DEV_MODE and st.session_state.get("dropbox_upload_enabled", True):
+            ) and st.session_state.get("dropbox_upload_enabled", True):
                 with st.spinner(t("dropbox_uploading")):
                     try:
                         if upload_to_dropbox(zip_data, f"{base_name}.zip"):
                             st.toast(t("dropbox_success"), icon="☁️")
                     except Exception:
                         pass
-
-            if DEV_MODE:
-                st.caption(t("dev_mode_warning"))
         else:
             st.info(t("sidebar_no_data"))
 

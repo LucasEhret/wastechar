@@ -34,7 +34,6 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "page_title":           "Résultat de caractérisation",
         "app_title":            "Caractérisation — {facility}",
         "app_version":          "Version : {version}",
-        "dev_mode_warning":     "🛠️ DEV MODE — Dropbox désactivé.",
 
         # Navigation tabs
         "nav_metadata":         "Métadonnées ➡️",
@@ -290,7 +289,6 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "page_title":           "Characterization result",
         "app_title":            "Characterization — {facility}",
         "app_version":          "Version: {version}",
-        "dev_mode_warning":     "🛠️ DEV MODE — Dropbox disabled.",
 
         # Navigation tabs
         "nav_metadata":         "Metadata ➡️",
@@ -546,7 +544,6 @@ The file is also automatically sent to Dropbox.
         "page_title":           "Resultado de caracterización",
         "app_title":            "Caracterización — {facility}",
         "app_version":          "Versión: {version}",
-        "dev_mode_warning":     "MODO DEV — Dropbox desactivado.",
 
         # Navigation tabs
         "nav_metadata":         "Metadatos ➡️",

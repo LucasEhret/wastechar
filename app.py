@@ -1,12 +1,11 @@
 import uuid
 import datetime as dt
-import openpyxl
 import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
 
 from config import (
-    APP_VERSION, DEV_MODE, TEMP_DIR,
+    APP_VERSION, TEMP_DIR,
     MATERIALS_FILE, SENSORS_FILE,
     WORKFLOW_MAP, ORDER_MAP,
     load_column_from_csv,

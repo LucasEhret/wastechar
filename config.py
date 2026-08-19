@@ -5,9 +5,6 @@ import pandas as pd
 import streamlit as st
 from pathlib import Path
 
-# ── DEPLOYMENT ────────────────────────────────────────────────────────────────
-DEV_MODE = False
-
 # ── FILE PATHS ────────────────────────────────────────────────────────────────
 MATERIALS_FILE = ".streamlit/ressources/list_classes.csv"
 SENSORS_FILE   = ".streamlit/ressources/list_sensors.csv"
