@@ -19,7 +19,7 @@ wastechar/
 ├── dialogs.py                  ← st.dialog definitions (new session, edit weighing)
 ├── styles.css                  ← Custom CSS injected on every page load
 ├── ui/
-│   ├── export_controls.py       ← Prepare and download a ZIP from Summary
+│   ├── export_controls.py       ← Generate and download a ZIP in one click from Summary
 │   ├── save_status.py           ← Sidebar save status and retry control
 │   ├── sidebar.py               ← Sidebar: identity, report status, language, and preview settings
 │   ├── tab_metadata.py          ← Tab 1: sampling, sensor passage, operator info, collection times
@@ -53,7 +53,7 @@ pip install -r requirements.txt
 **`requirements.txt`** currently includes:
 
 ```
-streamlit
+streamlit>=1.53
 pandas
 matplotlib
 openpyxl
@@ -234,7 +234,7 @@ Tab 3 — Weighing entry (Table mode by default, or Manual mode)
 
 Tab 4 — Summary
     └── Aggregated table + pie chart + per-sample breakdown + missing-class warnings
-        └── Prepare export, then download the ZIP containing Excel + PDF report + photos
+        └── Download the ZIP containing Excel + PDF report + photos in one click
             └── Auto-uploaded to Dropbox on download (unless the admin disabled it)
 ```
 
@@ -246,7 +246,7 @@ Gross and tare weights must be finite, non-negative numbers. An explicit 0 kg we
 
 ## Export format
 
-The ZIP is generated only when **Prepare export** is clicked on the Summary tab. Editing report data clears that ZIP and requires preparing a new one. The downloaded ZIP contains:
+The ZIP is generated only when **Download** is clicked on the Summary tab. The download callable uses a snapshot of the current report; ordinary screen rendering does not generate exports. The downloaded ZIP contains:
 
 Metadata can be saved as an incomplete draft, with missing collection times kept blank. A typed `00:00` is a valid midnight time. The Metadata tab's **Next** button requires complete metadata and a successful save. Weighing and export remain unavailable until the saved metadata is complete; export also checks the saved weighings and their sample numbers.
 

@@ -122,7 +122,7 @@ DEFAULTS: dict = {
 _identity = (_username, _facility)
 if st.session_state.get("_session_identity") not in (None, _identity):
     for key in (*DEFAULTS, "session_restored", "_save_status", "_last_saved_at",
-                "_prepared_export", "_operator_name", "_sensor_name", "_nb_sample",
+                "_operator_name", "_sensor_name", "_nb_sample",
                 "_test_date", "workflow_type_seg", "workflow_order_seg", "skip_collect_times",
                 "_skip_collect_times_value", "sample_nb", "container_used",
                 "container_name", "container_weight", "weighing_table_filter",

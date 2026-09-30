@@ -17,14 +17,17 @@ def render_sidebar(authenticator) -> None:
         authenticator.logout(t("btn_logout"), location="sidebar")
 
         st.divider()
-        st.caption(t("sidebar_report_title"))
-        st.caption(t(
-            "sidebar_report_details",
-            date=st.session_state.get("saved_test_date") or "—",
-            sensor=st.session_state.get("saved_sensor_name") or "—",
-        ))
-        st.caption(t("sidebar_weighings_count", n=len(st.session_state["df_weighings"])))
-        render_save_status()
+        if st.session_state.get("_save_status", "new") == "new":
+            st.info(t("sidebar_no_report"))
+        else:
+            st.caption(t("sidebar_report_title"))
+            st.caption(t(
+                "sidebar_report_details",
+                date=st.session_state.get("saved_test_date") or "—",
+                sensor=st.session_state.get("saved_sensor_name") or "—",
+            ))
+            st.caption(t("sidebar_weighings_count", n=len(st.session_state["df_weighings"])))
+            render_save_status()
 
         st.divider()
         st.selectbox(

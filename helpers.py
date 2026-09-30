@@ -55,8 +55,9 @@ def time_text_widget(label: str, key: str, on_change_callback) -> None:
                   key=key, on_change=on_change_callback)
 
 
-def get_sample_collect_times(sample_id: int) -> dict | None:
-    existing = st.session_state["df_collect_times"]
+def get_sample_collect_times(sample_id: int, state=None) -> dict | None:
+    state = st.session_state if state is None else state
+    existing = state["df_collect_times"]
     if existing.empty or "Echantillon" not in existing.columns:
         return None
     row = existing.loc[existing["Echantillon"] == sample_id]
@@ -67,7 +68,7 @@ def get_sample_collect_times(sample_id: int) -> dict | None:
     sample_date = (
         row.iloc[0]["Date"]
         if "Date" in row.columns
-        else st.session_state["saved_test_date"]
+        else state["saved_test_date"]
     )
     try:
         t_start = dt.time.fromisoformat(row.iloc[0]["Heure de début"])
@@ -91,12 +92,12 @@ def sample_ids_from_label(label) -> tuple[int, ...]:
     return parts
 
 
-def get_weighing_collect_times(label) -> tuple[str, str]:
+def get_weighing_collect_times(label, state=None) -> tuple[str, str]:
     """Resolve current collection times for all samples on a weighing."""
     sample_ids = sample_ids_from_label(label)
     starts, ends = [], []
     for sample_id in sample_ids:
-        times = get_sample_collect_times(sample_id)
+        times = get_sample_collect_times(sample_id, state)
         if times is None:
             return "", ""
         prefix = f"{sample_id}: " if len(sample_ids) > 1 else ""

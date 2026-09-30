@@ -68,8 +68,6 @@ def prepare_session_token() -> None:
 def mark_session_unsaved() -> None:
     """Mark edited report data as needing a successful session save."""
     st.session_state["_save_status"] = "unsaved"
-    st.session_state["_export_revision"] = st.session_state.get("_export_revision", 0) + 1
-    st.session_state.pop("_prepared_export", None)
 
 
 def save_observation() -> None:
@@ -80,7 +78,6 @@ def save_observation() -> None:
 
 def save_session() -> bool:
     """Write the current session to a temp file and report whether it succeeded."""
-    # Any edit makes a previously prepared ZIP stale, even if disk persistence fails.
     mark_session_unsaved()
     try:
         st.session_state["df_weighings"] = ensure_weighing_ids(ensure_recorded_tare(

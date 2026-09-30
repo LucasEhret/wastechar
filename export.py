@@ -1,14 +1,14 @@
 import datetime as dt
 import io
+import logging
 import tempfile
 import zipfile
 from pathlib import Path
 
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import pandas as pd
 import streamlit as st
 import dropbox
-import dropbox.exceptions
 import dropbox.files
 from fpdf import FPDF
 
@@ -20,21 +20,23 @@ from report_validation import report_errors
 from time_utils import DEFAULT_TIMEZONE, in_account_timezone, local_now, local_today
 
 
-def upload_to_dropbox(buffer: io.BytesIO, file_name: str) -> bool:
+logger = logging.getLogger(__name__)
+
+
+def upload_to_dropbox(buffer: io.BytesIO, file_name: str, settings=None) -> bool:
+    """Upload without Streamlit commands so deferred downloads can call this safely."""
     try:
+        settings = st.secrets if settings is None else settings
         dbx = dropbox.Dropbox(
-            app_key=st.secrets["DROPBOX_APP_KEY"],
-            app_secret=st.secrets["DROPBOX_APP_SECRET"],
-            oauth2_refresh_token=st.secrets["DROPBOX_REFRESH_TOKEN"],
+            app_key=settings["DROPBOX_APP_KEY"],
+            app_secret=settings["DROPBOX_APP_SECRET"],
+            oauth2_refresh_token=settings["DROPBOX_REFRESH_TOKEN"],
         )
-    except KeyError as e:
-        st.error(f"Dropbox — clé de configuration manquante : {e}")
-        return False
-    except Exception as e:
-        st.error(f"Dropbox — échec de l'authentification : {e}")
+    except Exception:
+        logger.exception("Could not initialize Dropbox upload")
         return False
 
-    path      = st.secrets.get("DROPBOX_DESTINATION_PATH", "/")
+    path      = settings.get("DROPBOX_DESTINATION_PATH", "/")
     full_path = f"{path}{file_name}".replace("//", "/")
     try:
         dbx.files_upload(
@@ -43,36 +45,33 @@ def upload_to_dropbox(buffer: io.BytesIO, file_name: str) -> bool:
             mode=dropbox.files.WriteMode.overwrite,  # type: ignore
         )
         return True
-    except dropbox.exceptions.AuthError as e:
-        st.error(f"Dropbox — token expiré ou invalide : {e}")
-    except dropbox.exceptions.ApiError as e:
-        st.error(f"Dropbox — erreur API ({full_path}) : {e}")
-    except Exception as e:
-        st.error(f"Dropbox — erreur inattendue : {e}")
+    except Exception:
+        logger.exception("Could not upload export to Dropbox")
     return False
 
 
-def build_excel_export(generated_at: dt.datetime | None = None) -> io.BytesIO:
-    if errors := report_errors(st.session_state):
+def build_excel_export(generated_at: dt.datetime | None = None, state=None) -> io.BytesIO:
+    state = st.session_state if state is None else state
+    if errors := report_errors(state):
         raise ValueError("Cannot export incomplete report: " + "; ".join(errors))
     generated_at = in_account_timezone(
-        generated_at or local_now(st.session_state.get("user_timezone")),
-        st.session_state.get("user_timezone"),
+        generated_at or local_now(state.get("user_timezone")),
+        state.get("user_timezone"),
     )
     buf         = io.BytesIO()
-    df          = st.session_state["df_weighings"].copy()
+    df          = state["df_weighings"].copy()
     if invalid_weighing_rows(df):
         raise ValueError("Cannot export invalid weighing weights")
-    sensor      = st.session_state["saved_sensor_name"]
-    date        = st.session_state["saved_test_date"]
-    facility    = st.session_state.get("facility_name", "")
+    sensor      = state["saved_sensor_name"]
+    date        = state["saved_test_date"]
+    facility    = state.get("facility_name", "")
 
     df_agg = (
         df.groupby(["N° échantillon", "Classe de matériau"], as_index=False)
         .agg(Poids_net=("Poids net", "sum"))
     )
     df_agg[["Début", "Fin"]] = pd.DataFrame(
-        [get_weighing_collect_times(label) for label in df_agg["N° échantillon"]],
+        [get_weighing_collect_times(label, state) for label in df_agg["N° échantillon"]],
         index=df_agg.index,
     )
     sample_totals = (
@@ -120,7 +119,7 @@ def build_excel_export(generated_at: dt.datetime | None = None) -> io.BytesIO:
             sample_id_list = [int(s.strip()) for s in str(sample_id).split(",")]
             time_rows = []
             for sid in sample_id_list:
-                times = get_sample_collect_times(sid)
+                times = get_sample_collect_times(sid, state)
                 time_rows.append({
                     "Echantillon": sid,
                     "Début": str(times["Début"]) if times else "",
@@ -148,50 +147,51 @@ def build_excel_export(generated_at: dt.datetime | None = None) -> io.BytesIO:
             df_sample.to_excel(writer, sheet_name=sheet_name, index=False, startrow=len(times_df) + 2)
 
         # Metadata sheet
-        df_w        = st.session_state["df_weighings"]
+        df_w        = state["df_weighings"]
         _wf_labels  = {0: "Single", 1: "Multiple"}
         _wfo_labels = {0: "Before weighing", 1: "After weighing"}
         pd.DataFrame([
             {"field": "Facility name",         "value": facility},
             {"field": "App Version",           "value": APP_VERSION},
-            {"field": "Operator name",         "value": st.session_state["saved_operator_name"]},
-            {"field": "Test date",             "value": str(st.session_state["saved_test_date"])},
+            {"field": "Operator name",         "value": state["saved_operator_name"]},
+            {"field": "Test date",             "value": str(state["saved_test_date"])},
             {"field": "Sensor name",           "value": sensor},
-            {"field": "Sampling",              "value": _wf_labels.get(st.session_state.get("saved_workflow"), "—")},  # type: ignore
-            {"field": "Sensor passage",        "value": _wfo_labels.get(st.session_state.get("saved_workflow_order"), "—")},  # type: ignore
-            {"field": "Number of samples",     "value": st.session_state["saved_nb_sample"]},
+            {"field": "Sampling",              "value": _wf_labels.get(state.get("saved_workflow"), "—")},  # type: ignore
+            {"field": "Sensor passage",        "value": _wfo_labels.get(state.get("saved_workflow_order"), "—")},  # type: ignore
+            {"field": "Number of samples",     "value": state["saved_nb_sample"]},
             {"field": "Number of weighings",   "value": len(df_w)},
             {"field": "Total net weight (kg)", "value": round(df_w["Poids net"].sum(), 4) if not df_w.empty else 0},
             {"field": "Material classes used", "value": ", ".join(sorted(df_w["Classe de matériau"].unique())) if not df_w.empty else ""},
             {"field": "Containers used",       "value": ", ".join(sorted(df_w["Contenant utilisé"].replace("", pd.NA).dropna().unique())) if not df_w.empty else ""},
-            {"field": "Global comment",        "value": st.session_state.get("_global_comment_value", "")},
+            {"field": "Global comment",        "value": state.get("_global_comment_value", "")},
             {"field": "Export timestamp",      "value": generated_at.isoformat(timespec="seconds")},
-            {"field": "Time zone",             "value": st.session_state.get("user_timezone", DEFAULT_TIMEZONE)},
+            {"field": "Time zone",             "value": state.get("user_timezone", DEFAULT_TIMEZONE)},
         ]).to_excel(writer, sheet_name="Metadata", index=False)
 
     buf.seek(0)
     return buf
 
 
-def generate_pdf_report(generated_at: dt.datetime | None = None) -> bytes:
-    if errors := report_errors(st.session_state):
+def generate_pdf_report(generated_at: dt.datetime | None = None, state=None) -> bytes:
+    state = st.session_state if state is None else state
+    if errors := report_errors(state):
         raise ValueError("Cannot export incomplete report: " + "; ".join(errors))
     generated_at = in_account_timezone(
-        generated_at or local_now(st.session_state.get("user_timezone")),
-        st.session_state.get("user_timezone"),
+        generated_at or local_now(state.get("user_timezone")),
+        state.get("user_timezone"),
     )
-    df_weighings   = st.session_state["df_weighings"]
+    df_weighings   = state["df_weighings"]
     if invalid_weighing_rows(df_weighings):
         raise ValueError("Cannot export invalid weighing weights")
-    facility       = st.session_state.get("facility_name", "")
-    sensor         = st.session_state.get("saved_sensor_name", "-") or "-"
-    _wf_label      = WORKFLOW_MAP.get(st.session_state.get("saved_workflow"), "-")  # type: ignore
-    _wfo_label     = ORDER_MAP.get(st.session_state.get("saved_workflow_order"), "-")  # type: ignore
-    operator       = st.session_state.get("saved_operator_name", "-") or "-"
-    global_comment = st.session_state.get("_global_comment_value", "").strip()
-    material_classes = st.session_state.get("material_classes", [])
+    facility       = state.get("facility_name", "")
+    sensor         = state.get("saved_sensor_name", "-") or "-"
+    _wf_label      = WORKFLOW_MAP.get(state.get("saved_workflow"), "-")  # type: ignore
+    _wfo_label     = ORDER_MAP.get(state.get("saved_workflow_order"), "-")  # type: ignore
+    operator       = state.get("saved_operator_name", "-") or "-"
+    global_comment = state.get("_global_comment_value", "").strip()
+    material_classes = state.get("material_classes", [])
 
-    date_val = st.session_state.get("saved_test_date", local_today(st.session_state.get("user_timezone")))
+    date_val = state.get("saved_test_date", local_today(state.get("user_timezone")))
     date_str = date_val.strftime('%d/%m/%Y') if hasattr(date_val, 'strftime') else str(date_val)
 
     total_pesees     = len(df_weighings)
@@ -270,8 +270,8 @@ def generate_pdf_report(generated_at: dt.datetime | None = None) -> bytes:
         pdf.set_x(pdf.l_margin)
 
     # 2. Collection times
-    df_times = st.session_state.get("df_collect_times", pd.DataFrame())
-    if not df_times.empty and not st.session_state.get("_skip_collect_times_value", False):
+    df_times = state.get("df_collect_times", pd.DataFrame())
+    if not df_times.empty and not state.get("_skip_collect_times_value", False):
         sec += 1
         pdf.ln(6)
         pdf.set_font("Helvetica", "B", 14)
@@ -321,10 +321,11 @@ def generate_pdf_report(generated_at: dt.datetime | None = None) -> bytes:
         pdf.ln(10)
 
         if total_poids_net > 0:
-            plt.rcParams['axes.prop_cycle'] = plt.cycler(  # type: ignore
-                color=['#00D494', '#0A3D2E', '#7A9E89', '#AC6F4E', '#DAB996', '#2B2420', "#D4E5DE", "#FFFFFF"]
-            )
-            fig, ax = plt.subplots(figsize=(6, 4))
+            fig = Figure(figsize=(6, 4))
+            ax = fig.subplots()
+            ax.set_prop_cycle(color=[
+                '#00D494', '#0A3D2E', '#7A9E89', '#AC6F4E', '#DAB996', '#2B2420', '#D4E5DE', '#FFFFFF',
+            ])
             ax.pie(
                 df_summary["Pourcentage de la masse totale"],
                 labels=df_summary["Classe de matériau"],  # type: ignore
@@ -334,7 +335,6 @@ def generate_pdf_report(generated_at: dt.datetime | None = None) -> bytes:
             img_buf = io.BytesIO()
             fig.savefig(img_buf, format="png", bbox_inches="tight", dpi=150)
             img_buf.seek(0)
-            plt.close(fig)
 
             if pdf.get_y() + 95 > pdf.h - pdf.b_margin:
                 pdf.add_page()
@@ -353,30 +353,31 @@ def generate_pdf_report(generated_at: dt.datetime | None = None) -> bytes:
     return output.encode("latin-1") if isinstance(output, str) else bytes(output)
 
 
-def build_zip_export(base_name: str | None = None, generated_at: dt.datetime | None = None) -> io.BytesIO:
-    if errors := report_errors(st.session_state):
+def build_zip_export(base_name: str | None = None, generated_at: dt.datetime | None = None, state=None) -> io.BytesIO:
+    state = st.session_state if state is None else state
+    if errors := report_errors(state):
         raise ValueError("Cannot export incomplete report: " + "; ".join(errors))
-    if invalid_weighing_rows(st.session_state["df_weighings"]):
+    if invalid_weighing_rows(state["df_weighings"]):
         raise ValueError("Cannot export invalid weighing weights")
     buf         = io.BytesIO()
     generated_at = in_account_timezone(
-        generated_at or local_now(st.session_state.get("user_timezone")),
-        st.session_state.get("user_timezone"),
+        generated_at or local_now(state.get("user_timezone")),
+        state.get("user_timezone"),
     )
     timestamp   = generated_at.strftime("%Y%m%d_%H%M%z")
-    facility    = st.session_state.get("facility_name", "")
-    sensor_name = st.session_state["saved_sensor_name"].replace(" ", "_")
+    facility    = state.get("facility_name", "")
+    sensor_name = state["saved_sensor_name"].replace(" ", "_")
     if base_name is None:
         base_name = f"Resultat_{facility}_{sensor_name}_{timestamp}"
 
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        excel_buf = build_excel_export(generated_at)
+        excel_buf = build_excel_export(generated_at, state)
         zf.writestr(f"{base_name}.xlsx", excel_buf.read())
 
-        pdf_data = generate_pdf_report(generated_at)
+        pdf_data = generate_pdf_report(generated_at, state)
         zf.writestr(f"{base_name}.pdf", pdf_data)
 
-        df_w = st.session_state["df_weighings"]
+        df_w = state["df_weighings"]
         if "Image" in df_w.columns:
             seen_classes: set = set()
             for _, row in df_w.iterrows():
