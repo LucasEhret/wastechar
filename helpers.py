@@ -4,6 +4,8 @@ from pathlib import Path
 
 import streamlit as st
 
+from weights import gross_weights
+
 
 def inject_css() -> None:
     css = (Path(__file__).parent / "styles.css").read_text(encoding="utf-8")
@@ -12,12 +14,8 @@ def inject_css() -> None:
 
 
 def check_entry_typo(text: str) -> bool:
-    parts = text.strip().split()
-    if not parts:
-        return False
     try:
-        for part in parts:
-            float(part.replace(",", "."))
+        gross_weights(text)
         return True
     except ValueError:
         return False
@@ -64,17 +62,47 @@ def get_sample_collect_times(sample_id: int) -> dict | None:
     row = existing.loc[existing["Echantillon"] == sample_id]
     if row.empty:
         return None
+    if not row.iloc[0].get("Heure de début") or not row.iloc[0].get("Heure de fin"):
+        return None
     sample_date = (
         row.iloc[0]["Date"]
         if "Date" in row.columns
         else st.session_state["saved_test_date"]
     )
-    t_start = dt.time.fromisoformat(row.iloc[0]["Heure de début"])
-    t_end   = dt.time.fromisoformat(row.iloc[0]["Heure de fin"])
+    try:
+        t_start = dt.time.fromisoformat(row.iloc[0]["Heure de début"])
+        t_end   = dt.time.fromisoformat(row.iloc[0]["Heure de fin"])
+    except (TypeError, ValueError):
+        return None
     return {
         "Début": dt.datetime.combine(sample_date, t_start),
         "Fin":   dt.datetime.combine(sample_date, t_end),
     }
+
+
+def sample_ids_from_label(label) -> tuple[int, ...]:
+    """Parse the sample references stored on a weighing."""
+    try:
+        parts = tuple(int(part.strip()) for part in str(label).split(","))
+    except ValueError:
+        raise ValueError("Invalid sample reference") from None
+    if not parts or any(part < 1 for part in parts) or len(set(parts)) != len(parts):
+        raise ValueError("Invalid sample reference")
+    return parts
+
+
+def get_weighing_collect_times(label) -> tuple[str, str]:
+    """Resolve current collection times for all samples on a weighing."""
+    sample_ids = sample_ids_from_label(label)
+    starts, ends = [], []
+    for sample_id in sample_ids:
+        times = get_sample_collect_times(sample_id)
+        if times is None:
+            return "", ""
+        prefix = f"{sample_id}: " if len(sample_ids) > 1 else ""
+        starts.append(prefix + str(times["Début"]))
+        ends.append(prefix + str(times["Fin"]))
+    return "; ".join(starts), "; ".join(ends)
 
 
 def get_container_weight(container_name: str) -> float:

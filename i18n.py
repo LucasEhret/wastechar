@@ -53,6 +53,9 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "btn_delete":           "✕",
         "btn_edit":             "✏️",
         "btn_download":         "⬇️ Télécharger (Excel + PDF + photos)",
+        "btn_prepare_export":   "Préparer l'export",
+        "export_preparing":     "Préparation de l'export...",
+        "export_prepare_failed": "Impossible de préparer l'export : {error}",
         "btn_dropbox":          "Sauvegarder sur Dropbox",
         "btn_new_session":      "Nouvelle session",
         "btn_new_entry":        "Nouvelle saisie",
@@ -64,7 +67,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "sidebar_operator":     "Opérateur",
         "sidebar_date":         "Date",
         "sidebar_sensor":       "Capteur",
-        "sidebar_workflow":     "Workflow",
+        "sidebar_workflow":     "Échantillonnage / passage du capteur",
         "sidebar_weighings":    "Pesées enregistrées",
         "sidebar_export_title": "### 💾 Sauvegarde",
         "sidebar_no_data":      "L'export s'activera ici dès qu'une pesée sera enregistrée.",
@@ -72,7 +75,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "sidebar_guide_title":  "Guide d'utilisation rapide",
         "sidebar_guide_intro":  "Suivez les 4 étapes dans l'ordre via la barre de navigation en haut.",
         "sidebar_guide_body":   """
-**1️⃣ Métadonnées** — Workflow, informations, heures de passage sous le capteur.
+**1️⃣ Métadonnées** — Échantillonnage, passage du capteur, informations et horaires.
 
 **2️⃣ Contenants** — Tares des bacs ou cartons. Passez si pesée directe.
 
@@ -84,6 +87,19 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "sidebar_version":      "Version : {version}",
         "sidebar_dropbox_upload": "📤 Envoyer sur Dropbox",
         "sidebar_show_tutorials": "Afficher les tutoriels",
+        "sidebar_language": "Langue",
+        "sidebar_timezone": "Fuseau horaire : {timezone}",
+        "sidebar_report_title": "**Saisie en cours**",
+        "sidebar_report_details": "{date} · {sensor}",
+        "sidebar_weighings_count": "{n} pesée(s) enregistrée(s)",
+        "sidebar_save_saved_at": "✅ Saisie sauvegardée temporairement sur le serveur à {time}",
+        "sidebar_save_saved": "✅ Saisie sauvegardée temporairement sur le serveur",
+        "sidebar_save_new": "Aucune sauvegarde pour le moment",
+        "sidebar_save_unsaved": "Modifications non sauvegardées",
+        "sidebar_save_photos_warning": "Les photos ne sont pas conservées après actualisation. Exportez le ZIP pour les garder.",
+        "sidebar_save_failed": "Échec de la sauvegarde. Les données peuvent être perdues si la page est actualisée.",
+        "sidebar_save_retry": "Réessayer la sauvegarde",
+        "sidebar_restore_failed": "Impossible de restaurer la session sauvegardée.",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guide — Métadonnées",
@@ -93,14 +109,14 @@ sont sauvegardées automatiquement ; le bouton **💾 Sauvegarder** force une sa
 
 ---
 
-#### 1. Type de workflow
+#### 1. Échantillonnage et passage du capteur
 
 | Option | Description |
 |---|---|
-| **Standard** | Le capteur mesure **avant** la collecte (Capteur ➡️ Collecte ➡️ Pesée) |
-| **Inverse** | Le capteur mesure **après** la pesée (Collecte ➡️ Pesée ➡️ Capteur) |
-| **Standard** | 1 seul échantillon |
-| **Multi-échantillon** | Plusieurs prélèvements distincts (pour une seule caractérisation) |
+| **Échantillonnage : unique** | 1 seul échantillon |
+| **Échantillonnage : multiple** | Plusieurs prélèvements distincts |
+| **Capteur : avant la pesée** | Capteur ➡️ Collecte ➡️ Pesée |
+| **Capteur : après la pesée** | Collecte ➡️ Pesée ➡️ Capteur |
 
 #### 2. Informations générales
 Renseignez votre nom, la date, le capteur et le nombre d'échantillons.
@@ -109,16 +125,16 @@ Renseignez votre nom, la date, le capteur et le nombre d'échantillons.
 Pour chaque échantillon, indiquez l'heure de début et de fin de passage sous le capteur.
 Formats acceptés : `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
 """,
-        "meta_workflow_container_title": "### Comment est collectée la matière ?",
-        "meta_workflow_title":  "### Type de workflow",
-        "meta_workflow_label":  "Type de workflow",
-        "meta_wf_standard":     "Standard",
-        "meta_wf_multi":        "Multi-échantillon",
+        "meta_workflow_container_title": "### Échantillonnage et passage du capteur",
+        "meta_workflow_title":  "### Échantillonnage",
+        "meta_workflow_label":  "Échantillonnage",
+        "meta_wf_standard":     "Unique",
+        "meta_wf_multi":        "Multiple",
         "meta_wf_standard_caption": "Une seule collecte de matière",
         "meta_wf_multi_caption": "Plusieurs collectes de matière pour une seule caractérisation",
-        "meta_order_label":     "Ordre de passage",
-        "meta_wfo_order_a":     "Standard",
-        "meta_wfo_order_b":     "Inverse",
+        "meta_order_label":     "Passage sous capteur",
+        "meta_wfo_order_a":     "Avant la pesée",
+        "meta_wfo_order_b":     "Après la pesée",
         "meta_order_a_caption": "Capteur ➡️ Collecte ➡️ Pesée",
         "meta_order_b_caption": "Collecte ➡️ Pesée ➡️ Capteur",
         "meta_info_title":      "### Informations générales",
@@ -143,6 +159,20 @@ Formats acceptés : `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
         "meta_error_start":     "Échantillon {n} : format d'heure de début invalide ('{raw}'). Formats acceptés : hh:mm:ss, hhmmss, hh.mm.ss.",
         "meta_error_end":       "Échantillon {n} : format d'heure de fin invalide ('{raw}'). Formats acceptés : hh:mm:ss, hhmmss, hh.mm.ss.",
         "meta_error_time_order":"Échantillon {n} : l'heure de fin doit être postérieure à l'heure de début.",
+        "meta_missing_operator": "Nom de l'opérateur manquant.",
+        "meta_missing_sensor": "Capteur manquant.",
+        "meta_missing_date": "Date du test manquante.",
+        "meta_invalid_sample_count": "Nombre d'échantillons invalide.",
+        "meta_missing_times": "Échantillon {n} : heures de début et de fin manquantes.",
+        "meta_missing_start": "Échantillon {n} : heure de début manquante.",
+        "meta_missing_end": "Échantillon {n} : heure de fin manquante.",
+        "meta_invalid_times": "Échantillon {n} : heures de collecte invalides.",
+        "meta_referenced_samples": "Impossible de réduire le nombre d'échantillons : des pesées utilisent encore les échantillons supprimés.",
+        "meta_draft_warning": "Brouillon incomplet. Corrigez ces champs avant de continuer :",
+        "report_missing_weighings": "Aucune pesée enregistrée.",
+        "report_invalid_weighings": "Une ou plusieurs pesées ont un poids invalide.",
+        "report_invalid_samples": "Une ou plusieurs pesées indiquent un échantillon invalide.",
+        "export_draft_warning": "Export indisponible tant que le rapport est incomplet :",
 
         # Tab 2 — Containers
         "cont_guide_title":     "⁉️ Guide — Contenants",
@@ -166,7 +196,8 @@ Leur poids à vide (tare) est automatiquement soustrait pour calculer le **poids
         "cont_empty_info":      "Aucun contenant enregistré. Tare = 0.000 kg par défaut.",
         "cont_tare_caption":    "Tare : `{tare:.3f} kg`",
         "cont_delete_help":     "Supprimer ce contenant",
-        "cont_error_invalid":   "Le poids doit être un nombre valide.",
+        "cont_used_cannot_delete": "Suppression bloquée : {n} pesée(s) utilisent ce contenant.",
+        "cont_error_invalid":   "La tare doit être un nombre fini et positif ou nul (0 autorisé).",
         "cont_error_empty":     "Veuillez renseigner un identifiant de contenant.",
         "cont_error_exists":    "Ce contenant existe déjà.",
 
@@ -176,7 +207,7 @@ Leur poids à vide (tare) est automatiquement soustrait pour calculer le **poids
 Saisissez les pesées **une classe de matériau à la fois**.
 
 **Pour chaque pesée :**
-1. **Numéro(s) d'échantillon** — Standard = figé à 1. Multi = libre.
+1. **Numéro(s) d'échantillon** — Échantillonnage unique = figé à 1. Multiple = libre.
 2. **Classe de matériau** — Choisissez dans la liste ou saisissez une nouvelle valeur.
 3. **Contenant utilisé** — Ou *Pas de contenant* pour une pesée directe.
 4. **Poids brut (kg)** — Plusieurs poids séparés par des espaces (ex : `12.5 8.3`).
@@ -194,8 +225,27 @@ prélèvement sont renseignées dans **Métadonnées** (ou activez le mode sans 
         "weigh_mode_table":     "Tableau",
         "weigh_mode_manual":    "Manuel",
         "weigh_table_title":    "### Saisie par tableau",
+        "weigh_table_intro": "Une ligne par matériau : saisissez le poids brut, puis enregistrez. Les lignes vides sont ignorées. Modifier une ligne enregistrée corrige sa pesée. Pour plusieurs pesées d'un même matériau ou une photo, utilisez le mode Manuel. Supprimez une pesée via l'historique.",
+        "weigh_table_other_entries": "Les pesées saisies en mode Manuel ou avant cette mise à jour restent dans l'historique ; ce tableau ne les remplace pas.",
+        "weigh_table_filter": "Rechercher un matériau",
+        "weigh_table_filter_placeholder": "Nom du matériau...",
+        "weigh_table_shown": "{shown} matériau(x) affiché(s) sur {total}",
+        "weigh_table_no_match": "Aucun matériau ne correspond à cette recherche.",
+        "weigh_table_net_label": "Poids net (kg)",
         "weigh_table_no_classes": "Aucune classe de matériau configurée pour cette installation.",
-        "weigh_table_save_btn": "💾 Enregistrer les données",
+        "weigh_table_save_btn": "💾 Enregistrer les lignes modifiées",
+        "weigh_table_preview": "{filled} ligne(s) remplie(s) · {added} à ajouter · {corrected} à corriger · Net dans le tableau : {net:.3f} kg",
+        "weigh_table_recorded_badge": "Saisie par tableau",
+        "weigh_table_edit_here": "Modifier dans le tableau",
+        "weigh_table_saved_count": "{added} pesée(s) ajoutée(s), {corrected} corrigée(s).",
+        "weigh_table_error_duplicate": "Plusieurs pesées du tableau existent pour « {material} ». Supprimez le doublon dans l'historique.",
+        "weigh_table_error_stale": "La pesée de « {material} » a changé. Rechargez le tableau avant d'enregistrer.",
+        "weigh_table_error_clear": "« {material} » est déjà enregistrée. Pour la supprimer, utilisez l'historique.",
+        "weigh_table_error_sample": "Choisissez un échantillon valide pour « {material} ».",
+        "weigh_table_error_container": "Choisissez un contenant valide pour « {material} ».",
+        "weigh_table_error_weight": "Saisissez un poids brut fini et positif ou nul pour « {material} » (0 autorisé).",
+        "weigh_table_error_tare": "Tare invalide pour « {material} ». Corrigez le contenant.",
+        "weigh_table_error_negative": "Poids net négatif ({net:.3f} kg) pour « {material} ». Vérifiez la tare.",
         "weigh_table_saved_toast": "Pesées enregistrées !",
         "weigh_table_error_empty": "Veuillez saisir au moins un poids brut.",
         "weigh_table_error_no_sample": "Veuillez choisir un numéro d'échantillon pour chaque ligne pesée.",
@@ -222,7 +272,8 @@ prélèvement sont renseignées dans **Métadonnées** (ou activez le mode sans 
         "weigh_edit_help":      "Modifier",
         "weigh_delete_help":    "Supprimer",
         "weigh_disable_warning":"⚠️ Renseignez d'abord les heures de prélèvement dans l'onglet **Métadonnées**.",
-        "weigh_error_format":   "Veuillez vérifier la saisie des poids bruts. Séparez les poids par des espaces, avec virgule ou point décimal.",
+        "weigh_error_format":   "Saisissez des poids finis et positifs ou nuls (0 autorisé), séparés par des espaces. Virgule ou point décimal accepté.",
+        "weigh_error_invalid_tare": "Tare invalide. Corrigez le contenant avant d'enregistrer la pesée.",
         "weigh_error_no_sample":"Veuillez choisir au moins un échantillon.",
         "weigh_error_no_class": "Veuillez choisir une classe de matériau.",
         "weigh_error_negative": "Le poids net calculé est négatif ({net:.3f} kg). Vérifiez le contenant sélectionné et les poids saisis.",
@@ -233,6 +284,8 @@ prélèvement sont renseignées dans **Métadonnées** (ou activez le mode sans 
         "dialog_edit_save":     "💾 Enregistrer",
         "dialog_edit_no_sample":"⚠️ Veuillez choisir au moins un échantillon.",
         "dialog_edit_negative": "⚠️ Poids net négatif ({net:.3f} kg). Vérifiez le poids brut ou la tare.",
+        "dialog_edit_invalid_weight": "⚠️ Le poids brut doit être fini et positif ou nul (0 autorisé).",
+        "dialog_edit_invalid_tare": "⚠️ La tare du contenant est invalide.",
         "dialog_edit_toast":    "Pesée mise à jour !",
 
         # Tab 4 — Summary
@@ -252,10 +305,15 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "summ_dashboard_title": "Tableau de bord",
         "summ_total_metric":    "Masse totale enregistrée",
         "summ_chart_title":     "Répartition par classe de matériau",
+        "summ_zero_distribution": "Masse nette totale : 0 kg. Aucune répartition à afficher ; les pesées à zéro restent enregistrées.",
+        "summ_invalid_weights": "{n} pesée(s) ont un poids invalide. Corrigez-les dans l'historique des pesées avant d'exporter.",
         "summ_sample_detail":   "Détail par échantillon",
         "summ_sample_label":    "Échantillon {id}",
         "summ_missing_warning": "⚠️ **{n} classe(s) sans pesée :**",
         "summ_export_title":    "📤 Clôture de la session",
+        "summ_dropbox_upload": "Envoyer le ZIP sur Dropbox au téléchargement",
+        "summ_upload_on_download": "Le téléchargement enverra aussi le ZIP sur Dropbox.",
+        "summ_download_only": "Le ZIP sera uniquement téléchargé.",
         "summ_no_data":         "Aucune pesée enregistrée pour le moment.",
 
         # Summary table columns
@@ -308,6 +366,9 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "btn_delete":           "✕",
         "btn_edit":             "✏️",
         "btn_download":         "⬇️ Download (Excel + PDF + photos)",
+        "btn_prepare_export":   "Prepare export",
+        "export_preparing":     "Preparing export...",
+        "export_prepare_failed": "Could not prepare the export: {error}",
         "btn_dropbox":          "Save to Dropbox",
         "btn_new_session":      "New session",
         "btn_new_entry":        "New entry",
@@ -319,7 +380,7 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "sidebar_operator":     "Operator",
         "sidebar_date":         "Date",
         "sidebar_sensor":       "Sensor",
-        "sidebar_workflow":     "Workflow",
+        "sidebar_workflow":     "Sampling / Sensor passage",
         "sidebar_weighings":    "Recorded weighings",
         "sidebar_export_title": "### 💾 Save",
         "sidebar_no_data":      "Export will appear here once a weighing is recorded.",
@@ -327,7 +388,7 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "sidebar_guide_title":  "Quick user guide",
         "sidebar_guide_intro":  "Follow the 4 steps in order using the navigation bar at the top.",
         "sidebar_guide_body":   """
-**1️⃣ Metadata** — Workflow, operator info, sensor passage times.
+**1️⃣ Metadata** — Sampling, sensor passage, operator info, and collection times.
 
 **2️⃣ Containers** — Tare weights for boxes or bins. Skip if weighing directly.
 
@@ -339,6 +400,19 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "sidebar_version":      "Version: {version}",
         "sidebar_dropbox_upload": "📤 Upload to Dropbox",
         "sidebar_show_tutorials": "Show tutorials",
+        "sidebar_language": "Language",
+        "sidebar_timezone": "Time zone: {timezone}",
+        "sidebar_report_title": "**Current report**",
+        "sidebar_report_details": "{date} · {sensor}",
+        "sidebar_weighings_count": "{n} recorded weighing(s)",
+        "sidebar_save_saved_at": "✅ Entries temporarily saved on the server at {time}",
+        "sidebar_save_saved": "✅ Entries temporarily saved on the server",
+        "sidebar_save_new": "No save yet",
+        "sidebar_save_unsaved": "Unsaved changes",
+        "sidebar_save_photos_warning": "Photos are not retained after refresh. Export the ZIP to keep them.",
+        "sidebar_save_failed": "Save failed. Data may be lost if the page is refreshed.",
+        "sidebar_save_retry": "Retry saving",
+        "sidebar_restore_failed": "Could not restore the saved session.",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guide — Metadata",
@@ -348,14 +422,14 @@ the **💾 Save** button forces a manual save.
 
 ---
 
-#### 1. Workflow type
+#### 1. Sampling and sensor passage
 
 | Option | Description |
 |---|---|
-| **Standard** | Sensor measures **before** collection (Sensor ➡️ Collection ➡️ Weighing) |
-| **Inverse** | Sensor measures **after** weighing (Collection ➡️ Weighing ➡️ Sensor) |
-| **Standard** | 1 sample only |
-| **Multi-sample** | Multiple distinct collections (for a single characterization) |
+| **Sampling: Single** | One sample |
+| **Sampling: Multiple** | Multiple distinct collections |
+| **Sensor passage: Before weighing** | Sensor ➡️ Collection ➡️ Weighing |
+| **Sensor passage: After weighing** | Collection ➡️ Weighing ➡️ Sensor |
 
 #### 2. General information
 Enter your name, date, sensor and number of samples.
@@ -364,16 +438,16 @@ Enter your name, date, sensor and number of samples.
 For each sample, enter the start and end time of passage under the sensor.
 Accepted formats: `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
 """,
-        "meta_workflow_container_title": "### How is the material collected?",
-        "meta_workflow_title":  "### Workflow type",
-        "meta_workflow_label":  "Workflow type",
-        "meta_wf_standard":     "Standard",
-        "meta_wf_multi":        "Multi-sample",
+        "meta_workflow_container_title": "### Sampling and sensor passage",
+        "meta_workflow_title":  "### Sampling",
+        "meta_workflow_label":  "Sampling",
+        "meta_wf_standard":     "Single",
+        "meta_wf_multi":        "Multiple",
         "meta_wf_standard_caption": "A single material collection",
         "meta_wf_multi_caption": "Multiple material collections for a single characterization",
-        "meta_order_label":     "Passage order",
-        "meta_wfo_order_a":     "Standard",
-        "meta_wfo_order_b":     "Inverse",
+        "meta_order_label":     "Sensor passage",
+        "meta_wfo_order_a":     "Before weighing",
+        "meta_wfo_order_b":     "After weighing",
         "meta_order_a_caption": "Sensor ➡️ Collection ➡️ Weighing",
         "meta_order_b_caption": "Collection ➡️ Weighing ➡️ Sensor",
         "meta_info_title":      "### General information",
@@ -398,6 +472,20 @@ Accepted formats: `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
         "meta_error_start":     "Sample {n}: invalid start time format ('{raw}'). Accepted formats: hh:mm:ss, hhmmss, hh.mm.ss.",
         "meta_error_end":       "Sample {n}: invalid end time format ('{raw}'). Accepted formats: hh:mm:ss, hhmmss, hh.mm.ss.",
         "meta_error_time_order":"Sample {n}: end time must be later than start time.",
+        "meta_missing_operator": "Operator name is missing.",
+        "meta_missing_sensor": "Sensor is missing.",
+        "meta_missing_date": "Test date is missing.",
+        "meta_invalid_sample_count": "Invalid sample count.",
+        "meta_missing_times": "Sample {n}: start and end times are missing.",
+        "meta_missing_start": "Sample {n}: start time is missing.",
+        "meta_missing_end": "Sample {n}: end time is missing.",
+        "meta_invalid_times": "Sample {n}: invalid collection times.",
+        "meta_referenced_samples": "Cannot reduce the sample count: weighings still refer to the removed samples.",
+        "meta_draft_warning": "Incomplete draft. Correct these fields before continuing:",
+        "report_missing_weighings": "No weighings recorded.",
+        "report_invalid_weighings": "One or more weighings have an invalid weight.",
+        "report_invalid_samples": "One or more weighings refer to an invalid sample.",
+        "export_draft_warning": "Export is unavailable while the report is incomplete:",
 
         # Tab 2 — Containers
         "cont_guide_title":     "⁉️ Guide — Containers",
@@ -421,7 +509,8 @@ Their empty weight (tare) is automatically subtracted to calculate the **net wei
         "cont_empty_info":      "No containers registered. Tare = 0.000 kg by default.",
         "cont_tare_caption":    "Tare: `{tare:.3f} kg`",
         "cont_delete_help":     "Delete this container",
-        "cont_error_invalid":   "Weight must be a valid number.",
+        "cont_used_cannot_delete": "Deletion blocked: {n} weighing(s) use this container.",
+        "cont_error_invalid":   "Tare must be a finite non-negative number (0 is allowed).",
         "cont_error_empty":     "Please enter a container identifier.",
         "cont_error_exists":    "This container already exists.",
 
@@ -431,7 +520,7 @@ Their empty weight (tare) is automatically subtracted to calculate the **net wei
 Enter weighings **one material class at a time**.
 
 **For each weighing:**
-1. **Sample number(s)** — Standard = locked to 1. Multi = free.
+1. **Sample number(s)** — Single sampling = locked to 1. Multiple = free.
 2. **Material class** — Choose from the list or enter a new value.
 3. **Container used** — Or *No container* for a direct weighing.
 4. **Gross weight (kg)** — Multiple weights separated by spaces (e.g. `12.5 8.3`).
@@ -449,8 +538,27 @@ filled in under **Metadata** (or enable the no-times mode).
         "weigh_mode_table":     "Table",
         "weigh_mode_manual":    "Manual",
         "weigh_table_title":    "### Table entry",
+        "weigh_table_intro": "One row per material: enter the gross weight, then save. Blank rows are skipped. Editing a saved row corrects its weighing. Use Manual mode for additional weighings of the same material or a photo. Delete weighings from History.",
+        "weigh_table_other_entries": "Manual or earlier weighings remain in History; this table does not replace them.",
+        "weigh_table_filter": "Find a material",
+        "weigh_table_filter_placeholder": "Material name...",
+        "weigh_table_shown": "Showing {shown} of {total} materials",
+        "weigh_table_no_match": "No material matches this search.",
+        "weigh_table_net_label": "Net weight (kg)",
         "weigh_table_no_classes": "No material class configured for this facility.",
-        "weigh_table_save_btn": "💾 Save data",
+        "weigh_table_save_btn": "💾 Save changed rows",
+        "weigh_table_preview": "{filled} filled row(s) · {added} to add · {corrected} to correct · Net in table: {net:.3f} kg",
+        "weigh_table_recorded_badge": "Entered in table",
+        "weigh_table_edit_here": "Edit in table",
+        "weigh_table_saved_count": "{added} weighing(s) added, {corrected} corrected.",
+        "weigh_table_error_duplicate": "Multiple table weighings exist for “{material}”. Delete the duplicate from History.",
+        "weigh_table_error_stale": "The weighing for “{material}” changed. Refresh the table before saving.",
+        "weigh_table_error_clear": "“{material}” is already recorded. Delete it from History.",
+        "weigh_table_error_sample": "Choose a valid sample for “{material}”.",
+        "weigh_table_error_container": "Choose a valid container for “{material}”.",
+        "weigh_table_error_weight": "Enter a finite non-negative gross weight for “{material}” (0 is allowed).",
+        "weigh_table_error_tare": "Invalid tare for “{material}”. Correct the container.",
+        "weigh_table_error_negative": "Negative net weight ({net:.3f} kg) for “{material}”. Check the tare.",
         "weigh_table_saved_toast": "Weighings saved!",
         "weigh_table_error_empty": "Please enter at least one gross weight.",
         "weigh_table_error_no_sample": "Please select a sample number for every weighed row.",
@@ -477,7 +585,8 @@ filled in under **Metadata** (or enable the no-times mode).
         "weigh_edit_help":      "Edit",
         "weigh_delete_help":    "Delete",
         "weigh_disable_warning":"⚠️ Please fill in collection times in the **Metadata** tab first.",
-        "weigh_error_format":   "Please check the gross weight input. Separate values with spaces, using commas or decimal points.",
+        "weigh_error_format":   "Enter finite non-negative weights (0 is allowed), separated by spaces. Commas or decimal points are accepted.",
+        "weigh_error_invalid_tare": "Invalid tare. Correct the container before saving the weighing.",
         "weigh_error_no_sample":"Please select at least one sample.",
         "weigh_error_no_class": "Please select a material class.",
         "weigh_error_negative": "Calculated net weight is negative ({net:.3f} kg). Check the container and entered weights.",
@@ -488,6 +597,8 @@ filled in under **Metadata** (or enable the no-times mode).
         "dialog_edit_save":     "💾 Save",
         "dialog_edit_no_sample":"⚠️ Please select at least one sample.",
         "dialog_edit_negative": "⚠️ Negative net weight ({net:.3f} kg). Check gross weight or tare.",
+        "dialog_edit_invalid_weight": "⚠️ Gross weight must be finite and non-negative (0 is allowed).",
+        "dialog_edit_invalid_tare": "⚠️ The container tare is invalid.",
         "dialog_edit_toast":    "Weighing updated!",
 
         # Tab 4 — Summary
@@ -507,10 +618,15 @@ The file is also automatically sent to Dropbox.
         "summ_dashboard_title": "Dashboard",
         "summ_total_metric":    "Total recorded mass",
         "summ_chart_title":     "Distribution by material class",
+        "summ_zero_distribution": "Total net mass is 0 kg. There is no distribution to chart; zero weighings remain recorded.",
+        "summ_invalid_weights": "{n} weighing(s) have invalid weights. Correct them in Weighing history before exporting.",
         "summ_sample_detail":   "Detail by sample",
         "summ_sample_label":    "Sample {id}",
         "summ_missing_warning": "⚠️ **{n} class(es) with no weighing:**",
         "summ_export_title":    "📤 Close session",
+        "summ_dropbox_upload": "Upload the ZIP to Dropbox on download",
+        "summ_upload_on_download": "Downloading will also upload the ZIP to Dropbox.",
+        "summ_download_only": "The ZIP will only be downloaded.",
         "summ_no_data":         "No weighings recorded yet.",
 
         # Summary table columns
@@ -563,6 +679,9 @@ The file is also automatically sent to Dropbox.
         "btn_delete":           "✕",
         "btn_edit":             "✏️",
         "btn_download":         "⬇️ Descargar (Excel + PDF + fotos)",
+        "btn_prepare_export":   "Preparar exportación",
+        "export_preparing":     "Preparando exportación...",
+        "export_prepare_failed": "No se pudo preparar la exportación: {error}",
         "btn_dropbox":          "Guardar en Dropbox",
         "btn_new_session":      "Nueva sesión",
         "btn_new_entry":        "Nueva entrada",
@@ -574,7 +693,7 @@ The file is also automatically sent to Dropbox.
         "sidebar_operator":     "Operador",
         "sidebar_date":         "Fecha",
         "sidebar_sensor":       "Sensor",
-        "sidebar_workflow":     "Flujo de trabajo",
+        "sidebar_workflow":     "Muestreo / paso por el sensor",
         "sidebar_weighings":    "Pesajes registrados",
         "sidebar_export_title": "### 💾 Guardar",
         "sidebar_no_data":      "La exportación estará disponible aquí cuando se registre un pesaje.",
@@ -582,7 +701,7 @@ The file is also automatically sent to Dropbox.
         "sidebar_guide_title":  "Guía de uso rápido",
         "sidebar_guide_intro":  "Siga los 4 pasos en orden usando la barra de navegación de arriba.",
         "sidebar_guide_body":   """
-**1️⃣ Metadatos** — Flujo de trabajo, información del operador, tiempos de paso por el sensor.
+**1️⃣ Metadatos** — Muestreo, paso por el sensor, operador y horarios.
 
 **2️⃣ Contenedores** — Pesos de tara de cajas o bidones. Omita si pesa directamente.
 
@@ -594,6 +713,19 @@ The file is also automatically sent to Dropbox.
         "sidebar_version":      "Versión: {version}",
         "sidebar_dropbox_upload": "Subir a Dropbox",
         "sidebar_show_tutorials": "Mostrar los tutoriales",
+        "sidebar_language": "Idioma",
+        "sidebar_timezone": "Zona horaria: {timezone}",
+        "sidebar_report_title": "**Informe actual**",
+        "sidebar_report_details": "{date} · {sensor}",
+        "sidebar_weighings_count": "{n} pesaje(s) registrado(s)",
+        "sidebar_save_saved_at": "✅ Datos guardados temporalmente en el servidor a las {time}",
+        "sidebar_save_saved": "✅ Datos guardados temporalmente en el servidor",
+        "sidebar_save_new": "Todavía no hay ninguna copia guardada",
+        "sidebar_save_unsaved": "Cambios sin guardar",
+        "sidebar_save_photos_warning": "Las fotos no se conservan después de actualizar la página. Exporte el ZIP para guardarlas.",
+        "sidebar_save_failed": "Error al guardar. Los datos pueden perderse si se actualiza la página.",
+        "sidebar_save_retry": "Reintentar guardar",
+        "sidebar_restore_failed": "No se pudo restaurar la sesión guardada.",
 
         # Tab 1 — Metadata
         "meta_guide_title":     "⁉️ Guía — Metadatos",
@@ -603,14 +735,14 @@ el botón **💾 Guardar** fuerza un guardado manual.
 
 ---
 
-#### 1. Tipo de flujo de trabajo
+#### 1. Muestreo y paso por el sensor
 
 | Opción | Descripción |
 |---|---|
-| **Estándar** | El sensor mide **antes** de la recogida (Sensor ➡️ Recogida ➡️ Pesaje) |
-| **Contrarrestar** | El sensor mide **después** del pesaje (Recogida ➡️ Pesaje ➡️ Sensor) |
-| **Estándar** | 1 solo muestreo |
-| **Multi-muestra** | Varias recogidas distintas (para una sola caracterización) |
+| **Muestreo: único** | Una sola muestra |
+| **Muestreo: múltiple** | Varias recogidas distintas |
+| **Paso por el sensor: antes del pesaje** | Sensor ➡️ Recogida ➡️ Pesaje |
+| **Paso por el sensor: después del pesaje** | Recogida ➡️ Pesaje ➡️ Sensor |
 
 #### 2. Información general
 Introduzca su nombre, la fecha, el sensor y el número de muestras.
@@ -619,16 +751,16 @@ Introduzca su nombre, la fecha, el sensor y el número de muestras.
 Para cada muestra, indique la hora de inicio y fin de paso bajo el sensor.
 Formatos aceptados: `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
 """,
-        "meta_workflow_container_title": "### ¿Cómo se recoge el material?",
-        "meta_workflow_title":  "### Tipo de flujo de trabajo",
-        "meta_workflow_label":  "Tipo de flujo de trabajo",
-        "meta_wf_standard":     "Estándar",
-        "meta_wf_multi":        "Multi-muestra",
+        "meta_workflow_container_title": "### Muestreo y paso por el sensor",
+        "meta_workflow_title":  "### Muestreo",
+        "meta_workflow_label":  "Muestreo",
+        "meta_wf_standard":     "Único",
+        "meta_wf_multi":        "Múltiple",
         "meta_wf_standard_caption": "Una sola recogida de material",
         "meta_wf_multi_caption": "Varias recogidas de material para una sola caracterización",
-        "meta_order_label":     "Orden de paso",
-        "meta_wfo_order_a":     "Estándar",
-        "meta_wfo_order_b":     "Contrarrestar",
+        "meta_order_label":     "Paso por el sensor",
+        "meta_wfo_order_a":     "Antes del pesaje",
+        "meta_wfo_order_b":     "Después del pesaje",
         "meta_order_a_caption": "Sensor ➡️ Recogida ➡️ Pesaje",
         "meta_order_b_caption": "Recogida ➡️ Pesaje ➡️ Sensor",
         "meta_info_title":      "### Información general",
@@ -653,6 +785,20 @@ Formatos aceptados: `hh:mm:ss`, `hhmmss`, `hh.mm.ss`.
         "meta_error_start":     "Muestra {n}: formato de hora de inicio no válido ('{raw}'). Formatos aceptados: hh:mm:ss, hhmmss, hh.mm.ss.",
         "meta_error_end":       "Muestra {n}: formato de hora de fin no válido ('{raw}'). Formatos aceptados: hh:mm:ss, hhmmss, hh.mm.ss.",
         "meta_error_time_order":"Muestra {n}: la hora de fin debe ser posterior a la hora de inicio.",
+        "meta_missing_operator": "Falta el nombre del operador.",
+        "meta_missing_sensor": "Falta el sensor.",
+        "meta_missing_date": "Falta la fecha de la prueba.",
+        "meta_invalid_sample_count": "Número de muestras no válido.",
+        "meta_missing_times": "Muestra {n}: faltan las horas de inicio y fin.",
+        "meta_missing_start": "Muestra {n}: falta la hora de inicio.",
+        "meta_missing_end": "Muestra {n}: falta la hora de fin.",
+        "meta_invalid_times": "Muestra {n}: tiempos de recogida no válidos.",
+        "meta_referenced_samples": "No se puede reducir el número de muestras: hay pesajes que aún usan las muestras eliminadas.",
+        "meta_draft_warning": "Borrador incompleto. Corrija estos campos antes de continuar:",
+        "report_missing_weighings": "No hay pesajes registrados.",
+        "report_invalid_weighings": "Uno o varios pesajes tienen un peso no válido.",
+        "report_invalid_samples": "Uno o varios pesajes indican una muestra no válida.",
+        "export_draft_warning": "La exportación no está disponible mientras el informe esté incompleto:",
 
         # Tab 2 — Containers
         "cont_guide_title":     "⁉️ Guía — Contenedores",
@@ -676,7 +822,8 @@ Su peso vacío (tara) se resta automáticamente para calcular el **peso neto**.
         "cont_empty_info":      "No hay contenedores registrados. Tara = 0.000 kg por defecto.",
         "cont_tare_caption":    "Tara: `{tare:.3f} kg`",
         "cont_delete_help":     "Eliminar este contenedor",
-        "cont_error_invalid":   "El peso debe ser un número válido.",
+        "cont_used_cannot_delete": "Eliminación bloqueada: {n} pesaje(s) usan este contenedor.",
+        "cont_error_invalid":   "La tara debe ser un número finito no negativo (se permite 0).",
         "cont_error_empty":     "Por favor, introduzca un identificador de contenedor.",
         "cont_error_exists":    "Este contenedor ya existe.",
 
@@ -686,7 +833,7 @@ Su peso vacío (tara) se resta automáticamente para calcular el **peso neto**.
 Introduzca los pesajes **una clase de material a la vez**.
 
 **Para cada pesaje:**
-1. **Número(s) de muestra** — Estándar = fijo en 1. Multi = libre.
+1. **Número(s) de muestra** — Muestreo único = fijo en 1. Múltiple = libre.
 2. **Clase de material** — Elija de la lista o introduzca un nuevo valor.
 3. **Contenedor utilizado** — O *Sin contenedor* para un pesaje directo.
 4. **Peso bruto (kg)** — Varios pesos separados por espacios (p. ej. `12.5 8.3`).
@@ -704,8 +851,27 @@ recogida estén rellenos en **Metadatos** (o active el modo sin tiempos).
         "weigh_mode_table":     "Tabla",
         "weigh_mode_manual":    "Manual",
         "weigh_table_title":    "### Entrada por tabla",
+        "weigh_table_intro": "Una fila por material: introduzca el peso bruto y guarde. Las filas vacías se omiten. Al modificar una fila guardada se corrige su pesaje. Use el modo Manual para más pesajes del mismo material o para una foto. Elimine pesajes desde el historial.",
+        "weigh_table_other_entries": "Los pesajes manuales o anteriores permanecen en el historial; esta tabla no los reemplaza.",
+        "weigh_table_filter": "Buscar un material",
+        "weigh_table_filter_placeholder": "Nombre del material...",
+        "weigh_table_shown": "Se muestran {shown} de {total} materiales",
+        "weigh_table_no_match": "Ningún material coincide con la búsqueda.",
+        "weigh_table_net_label": "Peso neto (kg)",
         "weigh_table_no_classes": "No hay ninguna clase de material configurada para esta instalación.",
-        "weigh_table_save_btn": "💾 Guardar los datos",
+        "weigh_table_save_btn": "💾 Guardar filas modificadas",
+        "weigh_table_preview": "{filled} fila(s) con datos · {added} por añadir · {corrected} por corregir · Neto en la tabla: {net:.3f} kg",
+        "weigh_table_recorded_badge": "Introducido en la tabla",
+        "weigh_table_edit_here": "Editar en la tabla",
+        "weigh_table_saved_count": "{added} pesaje(s) añadido(s), {corrected} corregido(s).",
+        "weigh_table_error_duplicate": "Hay varios pesajes de tabla para «{material}». Elimine el duplicado desde el historial.",
+        "weigh_table_error_stale": "El pesaje de «{material}» cambió. Actualice la tabla antes de guardar.",
+        "weigh_table_error_clear": "«{material}» ya está registrado. Elimínelo desde el historial.",
+        "weigh_table_error_sample": "Elija una muestra válida para «{material}».",
+        "weigh_table_error_container": "Elija un contenedor válido para «{material}».",
+        "weigh_table_error_weight": "Introduzca un peso bruto finito no negativo para «{material}» (se permite 0).",
+        "weigh_table_error_tare": "Tara no válida para «{material}». Corrija el contenedor.",
+        "weigh_table_error_negative": "Peso neto negativo ({net:.3f} kg) para «{material}». Revise la tara.",
         "weigh_table_saved_toast": "¡Pesajes guardados!",
         "weigh_table_error_empty": "Por favor, introduzca al menos un peso bruto.",
         "weigh_table_error_no_sample": "Por favor, seleccione un número de muestra para cada línea pesada.",
@@ -732,7 +898,8 @@ recogida estén rellenos en **Metadatos** (o active el modo sin tiempos).
         "weigh_edit_help":      "Editar",
         "weigh_delete_help":    "Eliminar",
         "weigh_disable_warning":"⚠️ Primero rellene los tiempos de recogida en la pestaña **Metadatos**.",
-        "weigh_error_format":   "Verifique la entrada de pesos brutos. Separe los valores con espacios, usando coma o punto decimal.",
+        "weigh_error_format":   "Introduzca pesos finitos no negativos (se permite 0), separados por espacios. Se acepta coma o punto decimal.",
+        "weigh_error_invalid_tare": "Tara no válida. Corrija el contenedor antes de guardar el pesaje.",
         "weigh_error_no_sample":"Por favor, seleccione al menos una muestra.",
         "weigh_error_no_class": "Por favor, seleccione una clase de material.",
         "weigh_error_negative": "El peso neto calculado es negativo ({net:.3f} kg). Compruebe el contenedor y los pesos introducidos.",
@@ -743,6 +910,8 @@ recogida estén rellenos en **Metadatos** (o active el modo sin tiempos).
         "dialog_edit_save":     "💾 Guardar",
         "dialog_edit_no_sample":"⚠️ Por favor, seleccione al menos una muestra.",
         "dialog_edit_negative": "⚠️ Peso neto negativo ({net:.3f} kg). Compruebe el peso bruto o la tara.",
+        "dialog_edit_invalid_weight": "⚠️ El peso bruto debe ser finito y no negativo (se permite 0).",
+        "dialog_edit_invalid_tare": "⚠️ La tara del contenedor no es válida.",
         "dialog_edit_toast":    "¡Pesaje actualizado!",
 
         # Tab 4 — Summary
@@ -762,10 +931,15 @@ El archivo también se envía automáticamente a Dropbox.
         "summ_dashboard_title": "Panel de control",
         "summ_total_metric":    "Masa total registrada",
         "summ_chart_title":     "Distribución por clase de material",
+        "summ_zero_distribution": "La masa neta total es 0 kg. No hay distribución que mostrar; los pesajes a cero siguen registrados.",
+        "summ_invalid_weights": "{n} pesaje(s) tienen pesos no válidos. Corríjalos en el historial antes de exportar.",
         "summ_sample_detail":   "Detalle por muestra",
         "summ_sample_label":    "Muestra {id}",
         "summ_missing_warning": "⚠️ **{n} clase(s) sin pesaje:**",
         "summ_export_title":    "📤 Cierre de sesión",
+        "summ_dropbox_upload": "Subir el ZIP a Dropbox al descargarlo",
+        "summ_upload_on_download": "La descarga también subirá el ZIP a Dropbox.",
+        "summ_download_only": "El ZIP solo se descargará.",
         "summ_no_data":         "No hay pesajes registrados por el momento.",
 
         # Summary table columns

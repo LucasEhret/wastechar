@@ -10,8 +10,8 @@ MATERIALS_FILE = ".streamlit/ressources/list_classes.csv"
 SENSORS_FILE   = ".streamlit/ressources/list_sensors.csv"
 
 # ── WORKFLOW MAPS ─────────────────────────────────────────────────────────────
-WORKFLOW_MAP = {0: "Standard", 1: "Multi-échantillon"}
-ORDER_MAP    = {0: "Standard", 1: "Inverse"}
+WORKFLOW_MAP = {0: "Échantillon unique", 1: "Échantillons multiples"}
+ORDER_MAP    = {0: "Avant la pesée", 1: "Après la pesée"}
 
 # ── TEMP STORAGE ──────────────────────────────────────────────────────────────
 TEMP_DIR = Path(tempfile.gettempdir()) / "wastechar_sessions"

@@ -1,7 +1,9 @@
 import streamlit as st
 
-from helpers import get_sample_collect_times, get_container_weight
+from helpers import get_container_weight
 from session import save_session, clear_session
+from weights import net_weight as calculate_net_weight, nonnegative_weight
+from i18n import t
 
 
 @st.dialog("Nouvelle saisie")
@@ -57,7 +59,12 @@ def dialog_modifier_pesee(row_idx: int) -> None:
         cont_index = 0
 
     new_container = st.selectbox("Contenant utilisé", container_options, index=cont_index)
-    new_gross     = st.number_input("Poids brut (kg)", value=float(row["Poids brut"]), step=0.1, format="%.3f")
+    try:
+        current_gross = nonnegative_weight(row["Poids brut"])
+    except ValueError:
+        current_gross = 0.0
+    new_gross = st.number_input("Poids brut (kg)", min_value=0.0,
+                                value=current_gross, step=0.1, format="%.3f")
 
     st.divider()
     col_save, col_cancel = st.columns(2)
@@ -68,27 +75,33 @@ def dialog_modifier_pesee(row_idx: int) -> None:
                 st.error("⚠️ Veuillez choisir au moins un échantillon.")
                 return
 
-            tare_weight = get_container_weight(new_container) if new_container != "Pas de contenant" else 0.0
-            new_net     = new_gross - tare_weight
-
-            if new_net < 0:
-                st.error(f"⚠️ Poids net négatif ({new_net:.3f} kg). Vérifiez le poids brut ou la tare.")
+            try:
+                valid_gross = nonnegative_weight(new_gross)
+            except ValueError:
+                st.error(t("dialog_edit_invalid_weight"))
+                return
+            try:
+                tare_weight = nonnegative_weight(
+                    get_container_weight(new_container) if new_container != "Pas de contenant" else 0.0
+                )
+            except ValueError:
+                st.error(t("dialog_edit_invalid_tare"))
+                return
+            try:
+                new_net = calculate_net_weight(valid_gross, tare_weight)
+            except ValueError:
+                st.error(t("dialog_edit_negative", net=valid_gross - tare_weight))
                 return
 
             new_sample_label = ", ".join(map(str, sorted(new_samples)))
-            times = get_sample_collect_times(new_samples[0])
-
             st.session_state["df_weighings"].at[row_idx, "N° échantillon"]    = new_sample_label
             st.session_state["df_weighings"].at[row_idx, "Classe de matériau"] = new_material
             st.session_state["df_weighings"].at[row_idx, "Contenant utilisé"] = (
                 "" if new_container == "Pas de contenant" else new_container
             )
-            st.session_state["df_weighings"].at[row_idx, "Poids brut"] = new_gross
+            st.session_state["df_weighings"].at[row_idx, "Poids brut"] = valid_gross
+            st.session_state["df_weighings"].at[row_idx, "Tare"] = tare_weight
             st.session_state["df_weighings"].at[row_idx, "Poids net"]  = new_net
-            if times:
-                st.session_state["df_weighings"].at[row_idx, "Début"] = times["Début"]
-                st.session_state["df_weighings"].at[row_idx, "Fin"]   = times["Fin"]
-
             st.toast("Pesée mise à jour !", icon="✅")
             save_session()
             st.rerun()

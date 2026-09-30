@@ -43,15 +43,21 @@ def render_tab_containers() -> None:
                 st.info(t("cont_empty_info"))
             else:
                 for _, row in st.session_state["df_containers"].iterrows():
+                    used_count = int((
+                        st.session_state["df_weighings"]["Contenant utilisé"] == row["Contenant"]
+                    ).sum())
                     with st.container(border=True):
                         c_info, c_action = st.columns([4, 1], vertical_alignment="center")
                         with c_info:
                             st.markdown(f"**📦 {row['Contenant']}**")
                             st.caption(t("cont_tare_caption", tare=row["Poids à vide"]))
+                            if used_count:
+                                st.caption(t("cont_used_cannot_delete", n=used_count))
                         with c_action:
                             if st.button(
                                 t("btn_delete"), key=f"del_{row['Contenant']}",
                                 type="secondary", help=t("cont_delete_help"),
+                                disabled=bool(used_count),
                             ):
                                 remove_container(row["Contenant"])
 

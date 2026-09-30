@@ -1,5 +1,3 @@
-import uuid
-import datetime as dt
 import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
@@ -10,7 +8,7 @@ from config import (
     WORKFLOW_MAP, ORDER_MAP,
     load_column_from_csv,
 )
-from session import save_session, restore_session, clear_session
+from session import save_session, restore_session, clear_session, prepare_session_token
 from helpers import inject_css
 from ui.sidebar import render_sidebar
 from ui.tab_metadata import render_tab_metadata
@@ -18,6 +16,7 @@ from ui.tab_containers import render_tab_containers
 from ui.tab_weighing import render_tab_weighing
 from ui.tab_summary import render_tab_summary
 from i18n import t
+from time_utils import account_timezone, local_today
 
 
 # ── PAGE CONFIG ───────────────────────────────────────────────────────────────
@@ -56,7 +55,13 @@ elif st.session_state.get("authentication_status") is None:
 
 # Resolve facility and lists from logged-in user
 _username     = st.session_state["username"]
-_facility     = st.secrets["credentials"]["usernames"][_username]["facility"]
+_account      = st.secrets["credentials"]["usernames"][_username]
+_facility     = _account["facility"]
+try:
+    _timezone_name = account_timezone(_account.get("timezone")).key
+except ValueError as exc:
+    st.error(str(exc))
+    st.stop()
 _is_admin     = _facility == "WasteFlow"
 _all_facils: list[str] = []
 
@@ -69,6 +74,7 @@ if _is_admin:
 
 # Store in session state so all modules can access
 st.session_state["facility_name"]   = _facility
+st.session_state["user_timezone"]   = _timezone_name
 st.session_state["is_admin"]        = _is_admin
 st.session_state["all_facilities"]  = _all_facils
 st.session_state["material_classes"] = load_column_from_csv(MATERIALS_FILE, _facility)
@@ -83,12 +89,12 @@ DEFAULTS: dict = {
     "container_error":     "",
     "weighing_error":      "",
     "saved_operator_name": "",
-    "saved_test_date":     dt.date.today(),
+    "saved_test_date":     local_today(_timezone_name),
     "saved_sensor_name":   sensor_list[0] if sensor_list else "",
     "saved_nb_sample":     1,
     "image_uploader_key":  0,
     "show_tutorials":      True,
-    "global_comment":      "",
+    "_global_comment_value": "",
     "saved_workflow":      0,
     "weighing_version":    0,
     "saved_workflow_order": 0,
@@ -104,14 +110,30 @@ DEFAULTS: dict = {
     }),
     "df_weighings": pd.DataFrame({
         "N° échantillon":     pd.Series(dtype="str"),
-        "Début":              pd.Series(dtype="object"),
-        "Fin":                pd.Series(dtype="object"),
         "Classe de matériau": pd.Series(dtype="str"),
         "Contenant utilisé":  pd.Series(dtype="str"),
         "Poids brut":         pd.Series(dtype="float"),
+        "Tare":               pd.Series(dtype="float"),
         "Poids net":          pd.Series(dtype="float"),
+        "__weighing_id":      pd.Series(dtype="str"),
+        "__table_class":      pd.Series(dtype="str"),
     }),
 }
+_identity = (_username, _facility)
+if st.session_state.get("_session_identity") not in (None, _identity):
+    for key in (*DEFAULTS, "session_restored", "_save_status", "_last_saved_at",
+                "_prepared_export", "_operator_name", "_sensor_name", "_nb_sample",
+                "_test_date", "workflow_type_seg", "workflow_order_seg", "skip_collect_times",
+                "_skip_collect_times_value", "sample_nb", "container_used",
+                "container_name", "container_weight", "weighing_table_filter",
+                "global_comment"):
+        st.session_state.pop(key, None)
+    for key in list(st.session_state):
+        if key.startswith(("weighing_table_", "gross_weight_", "material_class_",
+                           "weighing_image_", "_start_", "_end_")):
+            st.session_state.pop(key, None)
+st.session_state["_session_identity"] = _identity
+
 for key, value in DEFAULTS.items():
     if key not in st.session_state:
         st.session_state[key] = value
@@ -125,8 +147,7 @@ if "skip_collect_times" not in st.session_state:
 
 
 # ── SESSION PERSISTENCE ───────────────────────────────────────────────────────
-if "session" not in st.query_params:
-    st.query_params["session"] = uuid.uuid4().hex
+prepare_session_token()
 
 if "session_restored" not in st.session_state:
     restore_session()

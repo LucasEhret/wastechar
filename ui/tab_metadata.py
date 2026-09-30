@@ -3,6 +3,7 @@ import streamlit as st
 from data import init_metadata_widget_state, save_metadata, _on_skip_collect_times_change
 from helpers import time_text_widget
 from i18n import t
+from report_validation import metadata_errors
 
 
 def render_tab_metadata() -> None:
@@ -14,7 +15,12 @@ def render_tab_metadata() -> None:
             st.image(".streamlit/images/process carac.png", width="stretch")
             st.markdown(t("meta_guide_body"))
 
-    # ── Workflow ──────────────────────────────────────────────────────────────
+    transient_error = st.session_state.get("metadata_error")
+    draft_errors = [transient_error] if transient_error else metadata_errors(st.session_state)
+    if draft_errors:
+        st.warning(t("meta_draft_warning") + " " + "; ".join(draft_errors))
+
+    # ── Sampling and sensor passage ───────────────────────────────────────────
     with st.container(border=True):
         st.markdown(t("meta_workflow_container_title"))
 
@@ -22,6 +28,8 @@ def render_tab_metadata() -> None:
 
         with col_wf:
             wf_options = [t("meta_wf_standard"), t("meta_wf_multi")]
+            if st.session_state.get("workflow_type_seg") not in (*wf_options, None):
+                st.session_state.pop("workflow_type_seg", None)
             wf_captions = [t("meta_wf_standard_caption"), t("meta_wf_multi_caption")]
             current_wf_idx = st.session_state.get("saved_workflow", 0)
 
@@ -46,6 +54,8 @@ def render_tab_metadata() -> None:
 
         with col_wfo:
             wfo_options = [t("meta_wfo_order_a"), t("meta_wfo_order_b")]
+            if st.session_state.get("workflow_order_seg") not in (*wfo_options, None):
+                st.session_state.pop("workflow_order_seg", None)
             wfo_captions = [t("meta_order_a_caption"), t("meta_order_b_caption")]
             current_wfo_idx = st.session_state.get("saved_workflow_order", 0)
 
@@ -80,14 +90,14 @@ def render_tab_metadata() -> None:
                              key="_sensor_name", index=0, on_change=save_metadata)
             with c2:
                 st.date_input(t("meta_date"), key="_test_date", on_change=save_metadata)
-                _is_standard = st.session_state.get("saved_workflow", 0) == 0
+                _is_single = st.session_state.get("saved_workflow", 0) == 0
                 st.number_input(
                     t("meta_nb_samples"),
                     step=1, min_value=1,
-                    max_value=1 if _is_standard else 100,
+                    max_value=1 if _is_single else 100,
                     format="%d",
                     key="_nb_sample",
-                    disabled=_is_standard,
+                    disabled=_is_single,
                     on_change=save_metadata,
                 )
 
@@ -115,9 +125,9 @@ def render_tab_metadata() -> None:
 
             st.write("")
             if st.button(t("btn_save"), type="primary", width="stretch", key="savebutton"):
-                save_metadata()
-                if not st.session_state.get("metadata_error"):
+                if save_metadata().saved:
                     st.toast(t("meta_saved_toast"), icon="✅")
+                st.rerun()
         else:
             st.caption(t("meta_skip_caption"))
 
@@ -146,6 +156,6 @@ def render_tab_metadata() -> None:
     _, col_next = st.columns(2)
     with col_next:
         if st.button(t("btn_next_containers"), width="stretch", type="primary"):
-            save_metadata()
-            st.session_state.step_index = 1
+            if save_metadata().can_progress:
+                st.session_state.step_index = 1
             st.rerun()

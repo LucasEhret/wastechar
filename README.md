@@ -14,12 +14,15 @@ wastechar/
 ├── helpers.py                  ← Pure utility functions (CSS injection, time parsing, weight lookup…)
 ├── session.py                  ← F5-protection: save/restore/clear session to the OS temp dir
 ├── data.py                     ← Action callbacks: add_weighing, save_metadata, summarize…
+├── table_entry.py              ← Validate and save table rows as new or corrected weighings
 ├── export.py                   ← build_excel_export, build_zip_export, generate_pdf_report, Dropbox upload
 ├── dialogs.py                  ← st.dialog definitions (new session, edit weighing)
 ├── styles.css                  ← Custom CSS injected on every page load
 ├── ui/
-│   ├── sidebar.py               ← Sidebar: language, tutorials toggle, session info, export, nav links
-│   ├── tab_metadata.py          ← Tab 1: workflow, operator info, collection times
+│   ├── export_controls.py       ← Prepare and download a ZIP from Summary
+│   ├── save_status.py           ← Sidebar save status and retry control
+│   ├── sidebar.py               ← Sidebar: identity, report status, language, and preview settings
+│   ├── tab_metadata.py          ← Tab 1: sampling, sensor passage, operator info, collection times
 │   ├── tab_containers.py        ← Tab 2: container (tare) management
 │   ├── tab_weighing.py          ← Tab 3: weighing entry (table & manual modes) and history
 │   └── tab_summary.py           ← Tab 4: dashboard, charts, export & reset
@@ -58,6 +61,7 @@ dropbox
 streamlit-extras
 fpdf2
 streamlit-authenticator==0.3.3
+tzdata
 ```
 
 ---
@@ -90,17 +94,22 @@ expiry_days  = 1
 name     = "Alice"
 password = "$2b$12$..."   # bcrypt hash — see below
 facility = "Veolia Bonneuil"
+timezone = "Europe/Paris"
 
 [credentials.usernames.jean]
 name     = "Jean"
 password = "$2b$12$..."
 facility = "TVL"
+timezone = "Europe/Zurich"
 
 [credentials.usernames.admin]
 name     = "Admin"
 password = "$2b$12$..."
 facility = "WasteFlow"   # reserved name — grants admin preview mode, see below
+timezone = "Europe/Zurich"
 ```
+
+An administrator sets each account's `timezone` in this file (or in the Streamlit Cloud secrets dashboard). Use an IANA time zone such as `Europe/Paris` or `America/New_York`; daylight-saving changes are applied automatically. Accounts without this setting use `Europe/Zurich`. The setting belongs to the logged-in account, including when an admin previews another facility. Invalid time-zone names stop the app for that account instead of silently using the server clock.
 
 To generate a bcrypt password hash:
 
@@ -174,10 +183,10 @@ facility = "Veolia Bonneuil"
 
 ## Admin / multi-facility preview mode
 
-Any user whose `facility` is set to **`WasteFlow`** is treated as an admin (`app.py`, `_is_admin`). Admin accounts get an extra sidebar panel to:
+Any user whose `facility` is set to **`WasteFlow`** is treated as an admin (`app.py`, `_is_admin`). Admin accounts can:
 
 - **Preview as** — switch the active `material_classes`/`sensor_list` to any facility column present in `list_sensors.csv`, without needing separate credentials per facility
-- **Toggle Dropbox upload** — uncheck it to exercise the full export flow (Excel/PDF/zip) without pushing test files to production Dropbox (this checkbox is currently the only way to skip the Dropbox upload)
+- **Toggle Dropbox upload on Summary** — uncheck it to exercise the full export flow (Excel/PDF/zip) without pushing test files to production Dropbox. The choice persists when navigating between screens.
 
 Non-admin users only ever see their own facility's data — this switcher is invisible to them.
 
@@ -211,36 +220,48 @@ Operator logs in
         └── Material classes + sensors loaded from CSV
 
 Tab 1 — Metadata
-    └── Workflow type + order, operator name, date, sensor, number of samples
+    └── Sampling (Single / Multiple) + Sensor passage (Before / After weighing), operator name, date, sensor, number of samples
         └── Collection times per sample (or skip via "Do not enter collection times now")
 
 Tab 2 — Containers
     └── Container name + tare weight (empty box mass)
 
 Tab 3 — Weighing entry (Table mode by default, or Manual mode)
-    └── Table  : one editable grid row per material class — sample, container, gross weight
+    └── Table  : one editable grid row per material class — save again to correct its weighing
     └── Manual : one-at-a-time form — sample(s), class, container, gross weight(s), optional photo
         └── Net weight = gross − tare
         └── Stored in df_weighings
 
 Tab 4 — Summary
     └── Aggregated table + pie chart + per-sample breakdown + missing-class warnings
-        └── Export: ZIP containing Excel + PDF report + photos
+        └── Prepare export, then download the ZIP containing Excel + PDF report + photos
             └── Auto-uploaded to Dropbox on download (unless the admin disabled it)
 ```
 
 ---
 
+Gross and tare weights must be finite, non-negative numbers. An explicit 0 kg weighing is valid; gross weight below tare is rejected. Reports with only zero net weights show 0% totals and omit the pie chart.
+
+---
+
 ## Export format
 
-The downloaded ZIP contains:
+The ZIP is generated only when **Prepare export** is clicked on the Summary tab. Editing report data clears that ZIP and requires preparing a new one. The downloaded ZIP contains:
+
+Metadata can be saved as an incomplete draft, with missing collection times kept blank. A typed `00:00` is a valid midnight time. The Metadata tab's **Next** button requires complete metadata and a successful save. Weighing and export remain unavailable until the saved metadata is complete; export also checks the saved weighings and their sample numbers.
+
+Weighings reference sample numbers; collection times are read from the current sample records when exporting. Editing a sample's times therefore updates the report without changing each weighing. The sample count cannot be reduced while weighings reference samples that would be removed.
+
+Each weighing stores the tare used to calculate its net weight. Older sessions infer that tare from their recorded gross and net weights. A container used by any weighing cannot be deleted; remove or correct those weighings first.
+
+Every weighing has a stable ID, including records restored from older sessions. Table entry uses that ID to correct a saved weighing in place; a 10 kg row changed to 12 kg remains one 12 kg weighing. Existing duplicate table rows are flagged for review in the weighing history.
 
 ```
-Resultat_{Facility}_{Sensor}_{YYYYMMDD_HHMM}.zip
+Resultat_{Facility}_{Sensor}_{YYYYMMDD_HHMM±HHMM}.zip
 ├── Resultat_{...}.xlsx
 │   ├── Global results   (one row per sample × class, % of grand total, TOTAL row)
 │   ├── Sample N         (collection times + class table with % of sample total + TOTAL row, per sample)
-│   └── Metadata         (facility, operator, date, sensor, workflow, version, timestamp…)
+│   └── Metadata         (facility, operator, date, sensor, sampling, sensor passage, version, timestamp…)
 ├── Resultat_{...}.pdf   (header, global indicators, collection times, pie chart)
 └── images/
     └── {ClassName}.jpg  (one photo per material class, if uploaded via Manual mode)
@@ -252,7 +273,9 @@ Resultat_{Facility}_{Sensor}_{YYYYMMDD_HHMM}.zip
 
 On every data action (add weighing, add container, save metadata…) the session is serialized to a JSON file under `TEMP_DIR` (`config.py` — the OS temp directory + `wastechar_sessions/`, e.g. `%TEMP%\wastechar_sessions` on Windows), keyed to a UUID stored in the URL query parameter `?session=<uuid>`.
 
-On page load, if the URL contains a known session token and the corresponding file exists, the session is automatically restored. This protects against accidental page refresh during a test.
+On page load, a session is restored only when its UUID token is valid and the saved username and facility match the authenticated user and active facility. Invalid or unauthorized URLs receive a fresh token. Legacy files without an owner/facility binding cannot be restored; this protects other users' reports while retaining refresh recovery for newly saved sessions.
+
+The sidebar shows when the session data was last saved on the server. If a write fails, it shows an error and a retry button. Invalid metadata stays marked as unsaved until corrected. Photos are not included in the refresh backup; the sidebar warns about this when photos are present.
 
 The session file is deleted when the operator clicks **🆕 Nouvelle saisie / New entry** to start a new test.
 

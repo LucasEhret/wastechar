@@ -88,39 +88,6 @@ div[data-testid="stButton"]:hover > button {
     margin: 0 !important;
 }
 
-/* TABS: sidebar ───────────────────────────────────────────────*/
-.st-key-new_session button { /*sidebar */
-	background-color: #dc3545;
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
-	border: 2px solid black;
-	font-weight: bold !important;
-}
-.st-key-new_session button:hover {
-	background-color: #8a202a !important; 
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
-	border: 2px solid black;
-	font-weight: bold;
-}
-.st-key-new_session button:hover p {
-	font-weight: bold;
-	color: white
-}
-
-.st-key-download_sidebar button {
-	background-color: #2dc5a2;
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
-	border: 2px solid black;
-}
-.st-key-download_sidebar button:hover {
-	background-color: #1e856d !important; 
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
-	border: 2px solid black;
-}
-
 /* TABS: Metaddonnées ───────────────────────────────────────────────*/
 
 /* TABS: Contenants ───────────────────────────────────────────────*/
@@ -128,31 +95,6 @@ div[data-testid="stButton"]:hover > button {
 /* TABS: Résultats ───────────────────────────────────────────────*/
 
 /* TABS: Summary ───────────────────────────────────────────────*/
-
-.st-key-new_entry button { /*summary tab */
-	background-color: #dc3545;
-	height: auto !important;
-    min-height: auto !important;
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
-	border: 2px solid black;
-	display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: normal !important;
-}
-.st-key-new_entry button:hover {
-	background-color: #8a202a !important;
-	height: auto !important;
-    min-height: auto !important;
-	padding-top: 14px !important;
-	padding-bottom: 14px !important;
-	border: 2px solid black;
-}
-.st-key-new_entry button:hover p {
-	font-weight: bold;
-	color: white
-}
 
 .st-key-download_summary button {
 	background-color: #2dc5a2;
