@@ -1,43 +1,30 @@
 """One-click export download, generated only when the user clicks."""
 
+from ui.report_state import app_state
+
 import io
 
-import pandas as pd
 import streamlit as st
+from report import Report
 
-from export import build_zip_export, upload_to_dropbox
+from export import build_zip_export, upload_to_dropbox, safe_export_name
 from i18n import t
 from report_validation import report_errors
 from time_utils import local_now
 
 
-_REPORT_KEYS = (
-    "df_weighings", "df_collect_times", "saved_sensor_name", "saved_test_date",
-    "saved_operator_name", "saved_nb_sample", "saved_workflow",
-    "saved_workflow_order", "_skip_collect_times_value", "_global_comment_value",
-    "material_classes", "facility_name", "user_timezone",
-)
-
-
-def _report_snapshot() -> dict:
+def _report_snapshot() -> Report:
     """Give the deferred download thread report data without Streamlit access."""
-    snapshot = {}
-    for key in _REPORT_KEYS:
-        if key in st.session_state:
-            value = st.session_state[key]
-            snapshot[key] = value.copy(deep=True) if isinstance(value, pd.DataFrame) else (
-                value.copy() if isinstance(value, list) else value
-            )
-    return snapshot
+    return Report.from_state(app_state)
 
 
 def render_export_controls() -> None:
-    errors = report_errors(st.session_state)
+    errors = report_errors(app_state)
     if errors:
         st.warning(t("export_draft_warning") + " " + "; ".join(errors))
         return
 
-    upload_status = st.session_state.setdefault("_export_upload_status", {})
+    upload_status = app_state.setdefault("_export_upload_status", {})
     previous_upload = upload_status.pop("result", None)
     if previous_upload is True:
         st.toast(t("dropbox_success"), icon="☁️")
@@ -49,12 +36,12 @@ def render_export_controls() -> None:
     timestamp = generated_at.strftime("%Y%m%d_%H%M%z")
     facility = snapshot.get("facility_name", "")
     sensor_name = snapshot["saved_sensor_name"].replace(" ", "_")
-    base_name = f"Resultat_{facility}_{sensor_name}_{timestamp}"
+    base_name = safe_export_name(f"Resultat_{facility}_{sensor_name}_{timestamp}")
     file_name = f"{base_name}.zip"
 
     upload_enabled = (
-        not st.session_state.get("is_admin", False)
-        or st.session_state.get("dropbox_upload_enabled", True)
+        not app_state.get("is_admin", False)
+        or app_state.get("dropbox_upload_enabled", True)
     )
     upload_settings = None
     if upload_enabled:

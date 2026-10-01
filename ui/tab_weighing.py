@@ -1,60 +1,77 @@
+from ui.report_state import app_state
 import hashlib
 import pandas as pd
 import streamlit as st
 
 from data import add_weighing, delete_weighing
 from dialogs import dialog_modifier_pesee
-from session import save_observation
+from session import save_observation, save_session
 from i18n import t
-from table_entry import duplicate_table_classes, make_table_draft, preview_table, save_table
+from table_entry import (
+    apply_table_draft, make_table_draft,
+    preview_table, save_table, update_table_draft,
+)
 from report_validation import metadata_errors
 from weights import nonnegative_weight
-from weighing_identity import WEIGHING_ID_COLUMN
 
 
 def _clear_weighing_error() -> None:
-    st.session_state["weighing_error"] = ""
+    app_state["weighing_error"] = ""
 
 
-def _render_table_mode(disable_weighing: bool) -> None:
-    material_classes = st.session_state.get("material_classes", [])
-    is_single = st.session_state.get("saved_workflow", 0) == 0
-    nb_sample = st.session_state["saved_nb_sample"]
-    container_options = ["Pas de contenant"] + st.session_state["df_containers"]["Contenant"].tolist()
+def _save_and_open_summary(edited: pd.DataFrame | None = None, *, manual: bool = False) -> bool:
+    """Commit the current report before navigating; preserve drafts on failure."""
+    if metadata_errors(app_state):
+        st.warning(t("weigh_disable_warning"))
+        return False
+    app_state["_global_comment_value"] = app_state.get(
+        "global_comment", app_state.get("_global_comment_value", "")
+    )
+    if manual:
+        version = app_state.get("weighing_version", 0)
+        image_key = f"weighing_image_{app_state['image_uploader_key']}"
+        has_entry = (
+            bool(app_state.get(f"gross_weight_{version}", "").strip())
+            or bool(app_state.get(f"material_class_{version}"))
+            or app_state.get(image_key) is not None
+        )
+        if has_entry and not add_weighing(rerun=False):
+            st.error(app_state.get("weighing_error") or t("sidebar_save_failed"))
+            return False
+    if edited is None and app_state.get("_table_draft"):
+        saved_rows = make_table_draft(
+            app_state.get("material_classes", []),
+            app_state["saved_nb_sample"],
+            app_state.get("saved_workflow", 0) == 0,
+        )
+        edited = apply_table_draft(saved_rows, app_state["_table_draft"])
+    saved = save_table(edited) if edited is not None else save_session()
+    if not saved:
+        st.error(app_state.get("weighing_error") or t("sidebar_save_failed"))
+        return False
+    app_state["step_index"] = 3
+    return True
+
+
+def _render_table_mode(disable_weighing: bool) -> pd.DataFrame | None:
+    material_classes = app_state.get("material_classes", [])
+    is_single = app_state.get("saved_workflow", 0) == 0
+    nb_sample = app_state["saved_nb_sample"]
+    container_options = [""] + app_state["df_containers"]["Contenant"].tolist()
 
     with st.container(border=True):
         st.markdown(t("weigh_table_title"))
         st.caption(t("weigh_table_intro"))
-        recorded = st.session_state["df_weighings"]
-        if not recorded.empty and (
-            "__table_class" not in recorded.columns
-            or recorded["__table_class"].fillna("").eq("").any()
-        ):
-            st.caption(t("weigh_table_other_entries"))
-        for material_class in duplicate_table_classes():
-            st.warning(t("weigh_table_error_duplicate", material=material_class))
 
-        if st.session_state["weighing_error"]:
-            st.warning(st.session_state["weighing_error"])
+        if app_state["weighing_error"]:
+            st.warning(app_state["weighing_error"])
 
-        if not material_classes:
+        if not material_classes and app_state["df_weighings"].empty:
             st.info(t("weigh_table_no_classes"))
             return
 
-        table_key = "weighing_table"
-        draft = st.session_state.get(table_key)
-        if draft is not None and WEIGHING_ID_COLUMN in draft.columns:
-            recorded_ids = set(recorded.get(WEIGHING_ID_COLUMN, pd.Series(dtype=str)).dropna())
-            draft_ids = set(draft[WEIGHING_ID_COLUMN].dropna())
-            if not draft_ids.issubset(recorded_ids):
-                draft = None
-        if (draft is None or WEIGHING_ID_COLUMN not in draft.columns
-                or draft["Classe de matériau"].tolist() != material_classes):
-            draft = make_table_draft(material_classes, nb_sample, is_single)
-            st.session_state[table_key] = draft
-            st.session_state["weighing_table_editor_version"] = (
-                st.session_state.get("weighing_table_editor_version", 0) + 1
-            )
+        saved_rows = make_table_draft(material_classes, nb_sample, is_single)
+        draft = apply_table_draft(saved_rows, app_state.get("_table_draft", {}))
 
         visible_columns = ["Classe de matériau"]
         if not is_single:
@@ -86,30 +103,39 @@ def _render_table_mode(disable_weighing: bool) -> None:
             schema_key = hashlib.sha256(
                 repr((visible_columns, container_options, nb_sample)).encode("utf-8")
             ).hexdigest()[:8]
+            saved_key = hashlib.sha256(
+                saved_rows.to_json(orient="records").encode("utf-8")
+            ).hexdigest()[:8]
             display = shown[visible_columns].copy()
             tares = dict(zip(
-                st.session_state["df_containers"]["Contenant"],
-                st.session_state["df_containers"]["Poids à vide"],
+                app_state["df_containers"]["Contenant"],
+                app_state["df_containers"]["Poids à vide"],
             ))
 
             def net_preview(row):
                 gross = row["Poids brut"]
-                container = row["Contenant utilisé"] if "Contenant utilisé" in row else "Pas de contenant"
+                container = row["Contenant utilisé"] if "Contenant utilisé" in row else ""
                 if pd.isna(gross) or pd.isna(container):
                     return None
-                tare = 0.0 if container == "Pas de contenant" else tares.get(container)
+                tare = 0.0 if container == "" else tares.get(container)
                 try:
                     return nonnegative_weight(gross) - nonnegative_weight(tare)
                 except ValueError:
                     return None
 
             display["Poids net"] = display.apply(net_preview, axis=1)
+            # The grid renders empty strings as blank cells before formatting.
+            # Use a nonempty option only in the editor; committed values stay empty.
+            no_container_option = "__no_container__"
+            while no_container_option in container_options:
+                no_container_option += "_"
+            if "Contenant utilisé" in display.columns:
+                display["Contenant utilisé"] = display["Contenant utilisé"].replace(
+                    {"": no_container_option}
+                )
             edited_visible = st.data_editor(
                 display,
-                key=(
-                    f"editor_{table_key}_{st.session_state.get('weighing_table_editor_version', 0)}"
-                    f"_{filter_key}_{schema_key}"
-                ),
+                key=f"editor_weighing_table_{saved_key}_{filter_key}_{schema_key}",
                 on_change=_clear_weighing_error,
                 hide_index=True,
                 width="stretch",
@@ -121,10 +147,11 @@ def _render_table_mode(disable_weighing: bool) -> None:
                         t("weigh_class_label"), disabled=True,
                     ),
                     "Contenant utilisé": st.column_config.SelectboxColumn(
-                        t("weigh_container_label"), options=container_options, required=True,
+                        t("weigh_container_label"), options=[no_container_option] + container_options[1:], required=True,
+                        format_func=lambda value, empty=t("weigh_no_container"): empty if value == no_container_option else value,
                     ),
-                    "N° échantillon": st.column_config.SelectboxColumn(
-                        t("weigh_sample_label"), options=list(range(1, nb_sample + 1)),
+                    "N° échantillon": st.column_config.TextColumn(
+                        t("weigh_sample_label"),
                     ),
                     "Poids brut": st.column_config.NumberColumn(
                         t("weigh_gross_label"), min_value=0.0, step=0.1, format="%.3f",
@@ -136,12 +163,17 @@ def _render_table_mode(disable_weighing: bool) -> None:
             )
             for index, (_, row) in zip(shown.index, edited_visible.iterrows()):
                 for column in visible_columns:
-                    edited.at[index, column] = row[column]
-        if is_single:
-            edited["N° échantillon"] = 1
+                    value = row[column]
+                    if column == "Contenant utilisé" and isinstance(value, str) and value == no_container_option:
+                        value = ""
+                    edited.at[index, column] = value
         if len(container_options) == 1:
-            edited["Contenant utilisé"] = "Pas de contenant"
-        st.session_state[table_key] = edited
+            edited["Contenant utilisé"] = ""
+        app_state["_table_draft"] = update_table_draft(
+            saved_rows, edited.loc[shown.index], app_state.get("_table_draft", {})
+        )
+        if app_state["_table_draft"]:
+            st.caption(t("weigh_pending_next_save"))
 
         try:
             preview = preview_table(edited)
@@ -166,25 +198,27 @@ def _render_table_mode(disable_weighing: bool) -> None:
             on_click=save_table,
             args=(edited.copy(),),
         )
+        return edited
 
 
 def _render_manual_mode(disable_weighing: bool) -> None:
-    material_classes = st.session_state.get("material_classes", [])
+    material_classes = app_state.get("material_classes", [])
 
-    with st.form("weighing_form", border=True):
+    # Keep fields live so the footer's Next button can save their latest values.
+    with st.container(border=True):
         st.markdown(t("weigh_form_title"))
 
-        if st.session_state["weighing_error"]:
-            st.warning(st.session_state["weighing_error"])
+        if app_state["weighing_error"]:
+            st.warning(app_state["weighing_error"])
 
-        _is_single = st.session_state.get("saved_workflow", 0) == 0
-        v = st.session_state.get("weighing_version", 0)
+        _is_single = app_state.get("saved_workflow", 0) == 0
+        v = app_state.get("weighing_version", 0)
 
         col1, col2, col3 = st.columns(3)
         with col1:
             st.multiselect(
                 t("weigh_sample_label"),
-                options=list(range(1, st.session_state["saved_nb_sample"] + 1)),
+                options=list(range(1, app_state["saved_nb_sample"] + 1)),
                 default=[1] if _is_single else None,
                 key="sample_nb",
                 placeholder=t("weigh_sample_ph"),
@@ -203,15 +237,16 @@ def _render_manual_mode(disable_weighing: bool) -> None:
         with col3:
             st.selectbox(
                 t("weigh_container_label"),
-                ["Pas de contenant"] + st.session_state["df_containers"]["Contenant"].tolist(),
+                [""] + app_state["df_containers"]["Contenant"].tolist(),
                 disabled=disable_weighing,
                 key="container_used",
+                format_func=lambda value, empty=t("weigh_no_container"): empty if value == "" else value,
             )
 
         img_file = st.file_uploader(
             t("weigh_image_label"),
             type=["jpg", "jpeg", "png"],
-            key=f"weighing_image_{st.session_state['image_uploader_key']}",
+            key=f"weighing_image_{app_state['image_uploader_key']}",
         )
         if img_file:
             st.image(img_file, width=200)
@@ -239,7 +274,7 @@ def _render_manual_mode(disable_weighing: bool) -> None:
                 label_visibility="hidden",
             )
         with col5:
-            submitted = st.form_submit_button(
+            submitted = st.button(
                 t("weigh_add_btn"),
                 width="stretch",
                 disabled=disable_weighing,
@@ -250,42 +285,53 @@ def _render_manual_mode(disable_weighing: bool) -> None:
 
 
 def render_tab_weighing() -> None:
-    if st.session_state.get("show_tutorials", True):
+    # Migrate live widget drafts from the previous label-based container option.
+    containers = set(app_state["df_containers"]["Contenant"])
+    legacy_empty = "Pas de contenant"
+    if legacy_empty not in containers:
+        if app_state.get("container_used") == legacy_empty:
+            app_state["container_used"] = ""
+        for changes in app_state.get("_table_draft", {}).values():
+            if changes.get("Contenant utilisé") == legacy_empty:
+                changes["Contenant utilisé"] = ""
+    if app_state.get("show_tutorials", True):
         with st.expander(t("weigh_guide_title"), expanded=False):
             st.markdown(t("weigh_guide_body"))
 
     # A partially saved collection table is still a draft.
-    disable_weighing = bool(metadata_errors(st.session_state))
+    disable_weighing = bool(metadata_errors(app_state))
     if disable_weighing:
         st.warning(t("weigh_disable_warning"))
 
     # Mode switch — table (default) vs manual
-    WEIGH_MODES = [t("weigh_mode_table"), t("weigh_mode_manual")]
-    if "weighing_mode_index" not in st.session_state:
-        st.session_state["weighing_mode_index"] = 0
+    WEIGH_MODES = {0: t("weigh_mode_table"), 1: t("weigh_mode_manual")}
+    if "weighing_mode_index" not in app_state:
+        app_state["weighing_mode_index"] = 0
 
     def _sync_weighing_mode():
-        st.session_state["weighing_mode_index"] = WEIGH_MODES.index(
-            st.session_state["weighing_mode_seg"]
-        )
+        selection = app_state.get("weighing_mode_seg")
+        if selection in WEIGH_MODES:
+            app_state["weighing_mode_index"] = selection
 
-    st.session_state["weighing_mode_seg"] = WEIGH_MODES[st.session_state["weighing_mode_index"]]
+    app_state["weighing_mode_seg"] = app_state["weighing_mode_index"]
     st.segmented_control(
         t("weigh_mode_label"),
-        options=WEIGH_MODES,
+        options=list(WEIGH_MODES),
+        format_func=WEIGH_MODES.__getitem__,
         key="weighing_mode_seg",
         label_visibility="collapsed",
         on_change=_sync_weighing_mode,
     )
 
-    if st.session_state["weighing_mode_index"] == 0:
-        _render_table_mode(disable_weighing)
+    edited_table = None
+    if app_state["weighing_mode_index"] == 0:
+        edited_table = _render_table_mode(disable_weighing)
     else:
         _render_manual_mode(disable_weighing)
 
     # Keep the value outside the widget key, which Streamlit drops on other tabs.
-    if "global_comment" not in st.session_state:
-        st.session_state["global_comment"] = st.session_state.get("_global_comment_value", "")
+    if "global_comment" not in app_state:
+        app_state["global_comment"] = app_state.get("_global_comment_value", "")
 
     # Observations
     st.write("")
@@ -302,7 +348,7 @@ def render_tab_weighing() -> None:
 
     # Weighings history
     st.write("")
-    df_w = st.session_state["df_weighings"]
+    df_w = app_state["df_weighings"]
     with st.expander(t("weigh_history_title", n=len(df_w)), expanded=False):
         if df_w.empty:
             st.info(t("weigh_history_empty"))
@@ -323,9 +369,7 @@ def render_tab_weighing() -> None:
                             unsafe_allow_html=True,
                         )
                     with c_edit:
-                        if isinstance(row.get("__table_class"), str) and row["__table_class"]:
-                            st.caption(t("weigh_table_edit_here"))
-                        elif st.button(t("btn_edit"), key=f"edit_w_{idx}", type="secondary",
+                        if st.button(t("btn_edit"), key=f"edit_w_{idx}", type="secondary",
                                        help=t("weigh_edit_help"), width="stretch"):
                             dialog_modifier_pesee(idx)
                     with c_del:
@@ -337,9 +381,13 @@ def render_tab_weighing() -> None:
     col_back, col_next = st.columns(2)
     with col_back:
         if st.button(t("btn_back"), width="stretch"):
-            st.session_state.step_index = 1
+            app_state.step_index = 1
             st.rerun()
     with col_next:
-        if st.button(t("btn_next_summary"), width="stretch", type="primary"):
-            st.session_state.step_index = 3
+        next_clicked = st.button(t("btn_next_summary"), width="stretch", type="primary")
+    top_navigation_requested = app_state.pop("_summary_navigation_requested", False)
+    if next_clicked or top_navigation_requested:
+        if _save_and_open_summary(
+            edited_table, manual=app_state["weighing_mode_index"] == 1,
+        ):
             st.rerun()

@@ -1,3 +1,4 @@
+from ui.report_state import app_state
 import re
 import datetime as dt
 from pathlib import Path
@@ -56,7 +57,7 @@ def time_text_widget(label: str, key: str, on_change_callback) -> None:
 
 
 def get_sample_collect_times(sample_id: int, state=None) -> dict | None:
-    state = st.session_state if state is None else state
+    state = app_state if state is None else state
     existing = state["df_collect_times"]
     if existing.empty or "Echantillon" not in existing.columns:
         return None
@@ -109,8 +110,8 @@ def get_weighing_collect_times(label, state=None) -> tuple[str, str]:
 def get_container_weight(container_name: str) -> float:
     if not container_name:
         return 0.0
-    row = st.session_state["df_containers"].loc[
-        st.session_state["df_containers"]["Contenant"] == container_name
+    row = app_state["df_containers"].loc[
+        app_state["df_containers"]["Contenant"] == container_name
     ]
     if row.empty:
         return 0.0
@@ -120,7 +121,7 @@ def get_container_weight(container_name: str) -> float:
 def _clean_time_widget_keys(nb_sample: int) -> None:
     """Remove widget keys for sample indices above nb_sample."""
     i = nb_sample + 1
-    while f"_start_{i}" in st.session_state or f"_end_{i}" in st.session_state:
+    while f"_start_{i}" in app_state or f"_end_{i}" in app_state:
         for key in (f"_start_{i}", f"_end_{i}", f"_date_{i}"):
-            st.session_state.pop(key, None)
+            app_state.pop(key, None)
         i += 1

@@ -1,6 +1,7 @@
 streamlit>=1.53
 pandas
 matplotlib
+pillow
 openpyxl
 dropbox
 streamlit-extras

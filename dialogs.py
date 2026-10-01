@@ -1,3 +1,4 @@
+from ui.report_state import app_state
 import streamlit as st
 
 from helpers import get_container_weight
@@ -15,8 +16,7 @@ def dialog_nouvelle_saisie() -> None:
     col1, col2 = st.columns(2)
     if col1.button("Confirmer", type="primary", width="stretch"):
         clear_session()
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
+        st.session_state.clear()
         st.query_params.clear()
         st.rerun()
     if col2.button("Annuler", width="stretch"):
@@ -25,9 +25,9 @@ def dialog_nouvelle_saisie() -> None:
 
 @st.dialog("✏️ Modifier la pesée")
 def dialog_modifier_pesee(row_idx: int) -> None:
-    df  = st.session_state["df_weighings"]
+    df  = app_state["df_weighings"]
     row = df.iloc[row_idx]
-    material_classes = st.session_state.get("material_classes", [])
+    material_classes = list(app_state.get("material_classes", []))
 
     st.markdown(f"Vous modifiez la pesée **n° {row_idx + 1}**.")
 
@@ -39,26 +39,28 @@ def dialog_modifier_pesee(row_idx: int) -> None:
 
     new_samples = st.multiselect(
         "Numéro(s) d'échantillon",
-        options=list(range(1, st.session_state["saved_nb_sample"] + 1)),
+        options=list(range(1, app_state["saved_nb_sample"] + 1)),
         default=current_samples,
     )
 
     current_material = row["Classe de matériau"]
-    try:
-        mat_index = material_classes.index(current_material)
-    except ValueError:
-        mat_index = 0
+    if current_material not in material_classes:
+        material_classes.append(current_material)
+    mat_index = material_classes.index(current_material)
 
     new_material = st.selectbox("Classe de matériau", material_classes, index=mat_index)
 
-    current_container = row["Contenant utilisé"] if row["Contenant utilisé"] else "Pas de contenant"
-    container_options = ["Pas de contenant"] + st.session_state["df_containers"]["Contenant"].tolist()
+    current_container = row["Contenant utilisé"] if row["Contenant utilisé"] else ""
+    container_options = [""] + app_state["df_containers"]["Contenant"].tolist()
     try:
         cont_index = container_options.index(current_container)
     except ValueError:
         cont_index = 0
 
-    new_container = st.selectbox("Contenant utilisé", container_options, index=cont_index)
+    new_container = st.selectbox(
+        "Contenant utilisé", container_options, index=cont_index,
+        format_func=lambda value, empty=t("weigh_no_container"): empty if value == "" else value,
+    )
     try:
         current_gross = nonnegative_weight(row["Poids brut"])
     except ValueError:
@@ -82,7 +84,7 @@ def dialog_modifier_pesee(row_idx: int) -> None:
                 return
             try:
                 tare_weight = nonnegative_weight(
-                    get_container_weight(new_container) if new_container != "Pas de contenant" else 0.0
+                    get_container_weight(new_container) if new_container != "" else 0.0
                 )
             except ValueError:
                 st.error(t("dialog_edit_invalid_tare"))
@@ -94,14 +96,14 @@ def dialog_modifier_pesee(row_idx: int) -> None:
                 return
 
             new_sample_label = ", ".join(map(str, sorted(new_samples)))
-            st.session_state["df_weighings"].at[row_idx, "N° échantillon"]    = new_sample_label
-            st.session_state["df_weighings"].at[row_idx, "Classe de matériau"] = new_material
-            st.session_state["df_weighings"].at[row_idx, "Contenant utilisé"] = (
-                "" if new_container == "Pas de contenant" else new_container
+            app_state["df_weighings"].at[row_idx, "N° échantillon"]    = new_sample_label
+            app_state["df_weighings"].at[row_idx, "Classe de matériau"] = new_material
+            app_state["df_weighings"].at[row_idx, "Contenant utilisé"] = (
+                "" if new_container == "" else new_container
             )
-            st.session_state["df_weighings"].at[row_idx, "Poids brut"] = valid_gross
-            st.session_state["df_weighings"].at[row_idx, "Tare"] = tare_weight
-            st.session_state["df_weighings"].at[row_idx, "Poids net"]  = new_net
+            app_state["df_weighings"].at[row_idx, "Poids brut"] = valid_gross
+            app_state["df_weighings"].at[row_idx, "Tare"] = tare_weight
+            app_state["df_weighings"].at[row_idx, "Poids net"]  = new_net
             st.toast("Pesée mise à jour !", icon="✅")
             save_session()
             st.rerun()

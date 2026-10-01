@@ -30,6 +30,33 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
     # ── FR ────────────────────────────────────────────────────────────────────
     "FR": {
 
+        # PDF report
+        "pdf_title": "Rapport de caractérisation",
+        "pdf_header_site": "Site : {facility}  |  Opérateur : {operator}  |  Date : {date}",
+        "pdf_header_sensor": "Capteur : {sensor}  |  Échantillonnage : {sampling}",
+        "pdf_header_passage": "Passage du capteur : {passage}",
+        "pdf_footer": "WasteFlow App {version}  |  Exporté le {date} à {time}",
+        "pdf_overview": "Indicateurs globaux",
+        "pdf_count": "Nombre total de pesées enregistrées : {count}",
+        "pdf_gross": "Masse brute totale : {weight:.3f} kg",
+        "pdf_net": "Masse nette totale triée : {weight:.3f} kg",
+        "pdf_present": "Classes présentes",
+        "pdf_absent": "Classes sans données",
+        "pdf_none": "Aucune",
+        "pdf_comment": "Commentaire général",
+        "pdf_collection": "Plages horaires de collecte",
+        "pdf_sample": "Échantillon",
+        "pdf_date": "Date",
+        "pdf_start": "Heure de début",
+        "pdf_end": "Heure de fin",
+        "pdf_distribution": "Répartition par classe de matériau",
+        "pdf_material": "Classe de matériau",
+        "pdf_net_column": "Poids net (kg)",
+        "pdf_percentage": "% de la masse totale",
+        "pdf_total": "TOTAL",
+        "pdf_chart": "Comparaison par classe de matériau",
+        "pdf_axis": "Masse nette (kg)",
+
         # App-level
         "page_title":           "Résultat de caractérisation",
         "app_title":            "Caractérisation — {facility}",
@@ -94,7 +121,6 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "sidebar_save_saved": "✅ Saisie sauvegardée temporairement sur le serveur",
         "sidebar_save_new": "Aucune sauvegarde pour le moment",
         "sidebar_save_unsaved": "Modifications non sauvegardées",
-        "sidebar_save_photos_warning": "Les photos ne sont pas conservées après actualisation. Exportez le ZIP pour les garder.",
         "sidebar_save_failed": "Échec de la sauvegarde. Les données peuvent être perdues si la page est actualisée.",
         "sidebar_save_retry": "Réessayer la sauvegarde",
         "sidebar_restore_failed": "Impossible de restaurer la session sauvegardée.",
@@ -221,9 +247,10 @@ prélèvement sont renseignées dans **Métadonnées** (ou activez le mode sans 
 """,
         "weigh_mode_label":     "Mode de saisie",
         "weigh_mode_table":     "Tableau",
+        "weigh_pending_next_save": "Modifications non enregistrées : le bouton Étape suivante les enregistrera avant d’ouvrir le résumé.",
         "weigh_mode_manual":    "Manuel",
         "weigh_table_title":    "### Saisie par tableau",
-        "weigh_table_intro": "Une ligne par matériau : saisissez le poids brut, puis enregistrez. Les lignes vides sont ignorées. Modifier une ligne enregistrée corrige sa pesée. Pour plusieurs pesées d'un même matériau ou une photo, utilisez le mode Manuel. Supprimez une pesée via l'historique.",
+        "weigh_table_intro": "Les modes Tableau et Manuel montrent les mêmes pesées. Chaque pesée enregistrée a sa propre ligne, y compris les matériaux personnalisés. Modifier une ligne corrige la pesée existante. Les lignes sans poids sont ignorées. En mode multi-échantillon, indiquez les numéros séparés par des virgules. Utilisez Manuel pour ajouter une autre pesée ou une photo. Supprimez les pesées via l’historique.",
         "weigh_table_other_entries": "Les pesées saisies en mode Manuel ou avant cette mise à jour restent dans l'historique ; ce tableau ne les remplace pas.",
         "weigh_table_filter": "Rechercher un matériau",
         "weigh_table_filter_placeholder": "Nom du matériau...",
@@ -342,6 +369,33 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
     # ── EN ────────────────────────────────────────────────────────────────────
     "EN": {
 
+        # PDF report
+        "pdf_title": "Characterization report",
+        "pdf_header_site": "Facility: {facility}  |  Operator: {operator}  |  Date: {date}",
+        "pdf_header_sensor": "Sensor: {sensor}  |  Sampling: {sampling}",
+        "pdf_header_passage": "Sensor passage: {passage}",
+        "pdf_footer": "WasteFlow App {version}  |  Exported on {date} at {time}",
+        "pdf_overview": "Global indicators",
+        "pdf_count": "Total recorded weighings: {count}",
+        "pdf_gross": "Total gross mass: {weight:.3f} kg",
+        "pdf_net": "Total sorted net mass: {weight:.3f} kg",
+        "pdf_present": "Recorded material classes",
+        "pdf_absent": "Classes without data",
+        "pdf_none": "None",
+        "pdf_comment": "General comment",
+        "pdf_collection": "Collection time ranges",
+        "pdf_sample": "Sample",
+        "pdf_date": "Date",
+        "pdf_start": "Start time",
+        "pdf_end": "End time",
+        "pdf_distribution": "Distribution by material class",
+        "pdf_material": "Material class",
+        "pdf_net_column": "Net weight (kg)",
+        "pdf_percentage": "% of total mass",
+        "pdf_total": "TOTAL",
+        "pdf_chart": "Comparison by material class",
+        "pdf_axis": "Net mass (kg)",
+
         # App-level
         "page_title":           "Characterization result",
         "app_title":            "Characterization — {facility}",
@@ -406,7 +460,6 @@ Le fichier est aussi envoyé automatiquement sur Dropbox.
         "sidebar_save_saved": "✅ Entries temporarily saved on the server",
         "sidebar_save_new": "No save yet",
         "sidebar_save_unsaved": "Unsaved changes",
-        "sidebar_save_photos_warning": "Photos are not retained after refresh. Export the ZIP to keep them.",
         "sidebar_save_failed": "Save failed. Data may be lost if the page is refreshed.",
         "sidebar_save_retry": "Retry saving",
         "sidebar_restore_failed": "Could not restore the saved session.",
@@ -533,9 +586,10 @@ filled in under **Metadata** (or enable the no-times mode).
 """,
         "weigh_mode_label":     "Entry mode",
         "weigh_mode_table":     "Table",
+        "weigh_pending_next_save": "Unsaved changes: Next will save them before opening Summary.",
         "weigh_mode_manual":    "Manual",
         "weigh_table_title":    "### Table entry",
-        "weigh_table_intro": "One row per material: enter the gross weight, then save. Blank rows are skipped. Editing a saved row corrects its weighing. Use Manual mode for additional weighings of the same material or a photo. Delete weighings from History.",
+        "weigh_table_intro": "Table and Manual show the same weighings. Each recorded weighing has its own row, including custom materials. Editing a row corrects the existing weighing. Rows without weights are skipped. For multiple samples, enter sample numbers separated by commas. Use Manual to add another weighing or a photo. Delete weighings from History.",
         "weigh_table_other_entries": "Manual or earlier weighings remain in History; this table does not replace them.",
         "weigh_table_filter": "Find a material",
         "weigh_table_filter_placeholder": "Material name...",
@@ -654,6 +708,33 @@ The file is also automatically sent to Dropbox.
     # ── ES ────────────────────────────────────────────────────────────────────
     "ES": {
 
+        # PDF report
+        "pdf_title": "Informe de caracterización",
+        "pdf_header_site": "Centro: {facility}  |  Operador: {operator}  |  Fecha: {date}",
+        "pdf_header_sensor": "Sensor: {sensor}  |  Muestreo: {sampling}",
+        "pdf_header_passage": "Paso del sensor: {passage}",
+        "pdf_footer": "WasteFlow App {version}  |  Exportado el {date} a las {time}",
+        "pdf_overview": "Indicadores globales",
+        "pdf_count": "Número total de pesajes registrados: {count}",
+        "pdf_gross": "Masa bruta total: {weight:.3f} kg",
+        "pdf_net": "Masa neta total clasificada: {weight:.3f} kg",
+        "pdf_present": "Clases de materiales registradas",
+        "pdf_absent": "Clases sin datos",
+        "pdf_none": "Ninguna",
+        "pdf_comment": "Comentario general",
+        "pdf_collection": "Intervalos de recogida",
+        "pdf_sample": "Muestra",
+        "pdf_date": "Fecha",
+        "pdf_start": "Hora de inicio",
+        "pdf_end": "Hora de fin",
+        "pdf_distribution": "Distribución por clase de material",
+        "pdf_material": "Clase de material",
+        "pdf_net_column": "Peso neto (kg)",
+        "pdf_percentage": "% de la masa total",
+        "pdf_total": "TOTAL",
+        "pdf_chart": "Comparación por clase de material",
+        "pdf_axis": "Masa neta (kg)",
+
         # App-level
         "page_title":           "Resultado de caracterización",
         "app_title":            "Caracterización — {facility}",
@@ -718,7 +799,6 @@ The file is also automatically sent to Dropbox.
         "sidebar_save_saved": "✅ Datos guardados temporalmente en el servidor",
         "sidebar_save_new": "Todavía no hay ninguna copia guardada",
         "sidebar_save_unsaved": "Cambios sin guardar",
-        "sidebar_save_photos_warning": "Las fotos no se conservan después de actualizar la página. Exporte el ZIP para guardarlas.",
         "sidebar_save_failed": "Error al guardar. Los datos pueden perderse si se actualiza la página.",
         "sidebar_save_retry": "Reintentar guardar",
         "sidebar_restore_failed": "No se pudo restaurar la sesión guardada.",
@@ -845,9 +925,10 @@ recogida estén rellenos en **Metadatos** (o active el modo sin tiempos).
 """,
         "weigh_mode_label":     "Modo de entrada",
         "weigh_mode_table":     "Tabla",
+        "weigh_pending_next_save": "Cambios sin guardar: Siguiente los guardará antes de abrir el resumen.",
         "weigh_mode_manual":    "Manual",
         "weigh_table_title":    "### Entrada por tabla",
-        "weigh_table_intro": "Una fila por material: introduzca el peso bruto y guarde. Las filas vacías se omiten. Al modificar una fila guardada se corrige su pesaje. Use el modo Manual para más pesajes del mismo material o para una foto. Elimine pesajes desde el historial.",
+        "weigh_table_intro": "Tabla y Manual muestran los mismos pesajes. Cada pesaje registrado tiene su propia fila, incluidos los materiales personalizados. Editar una fila corrige el pesaje existente. Las filas sin peso se omiten. Para varias muestras, introduzca los números separados por comas. Use Manual para añadir otro pesaje o una foto. Elimine los pesajes desde el historial.",
         "weigh_table_other_entries": "Los pesajes manuales o anteriores permanecen en el historial; esta tabla no los reemplaza.",
         "weigh_table_filter": "Buscar un material",
         "weigh_table_filter_placeholder": "Nombre del material...",
@@ -984,7 +1065,11 @@ def t(key: str, **kwargs) -> str:
     Falls back to FR if key is missing in the current language.
     Falls back to the key itself if missing in both.
     """
-    lang = get_lang()
+    return translate(get_lang(), key, **kwargs)
+
+
+def translate(lang: str, key: str, **kwargs) -> str:
+    """Translate using an explicit language, including in export threads."""
     value = (
         _TRANSLATIONS.get(lang, {}).get(key)
         or _TRANSLATIONS.get(DEFAULT_LANG, {}).get(key)

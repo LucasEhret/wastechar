@@ -7,27 +7,29 @@ import pandas as pd
 from helpers import parse_time_str, sample_ids_from_label
 from i18n import t
 from weights import invalid_weighing_rows
+from report import Report
 
 
 def metadata_errors(state) -> list[str]:
+    state = state if isinstance(state, Report) else Report.from_state(state)
     errors = []
-    if not str(state.get("saved_operator_name") or "").strip():
+    if not str(state.operator or "").strip():
         errors.append(t("meta_missing_operator"))
-    if not str(state.get("saved_sensor_name") or "").strip():
+    if not str(state.sensor or "").strip():
         errors.append(t("meta_missing_sensor"))
-    if not isinstance(state.get("saved_test_date"), dt.date):
+    if not isinstance(state.test_date, dt.date):
         errors.append(t("meta_missing_date"))
     try:
-        count = int(state.get("saved_nb_sample", 0))
+        count = int(state.sample_count)
         if count < 1:
             raise ValueError
     except (TypeError, ValueError):
         errors.append(t("meta_invalid_sample_count"))
         return errors
 
-    if state.get("_skip_collect_times_value", False):
+    if state.skip_collection_times:
         return errors
-    times = state.get("df_collect_times", pd.DataFrame())
+    times = state.collection_times
     if "Echantillon" not in times.columns:
         for i in range(1, count + 1):
             errors.extend((t("meta_missing_start", n=i), t("meta_missing_end", n=i)))
@@ -63,14 +65,15 @@ def metadata_errors(state) -> list[str]:
 
 
 def report_errors(state) -> list[str]:
+    state = state if isinstance(state, Report) else Report.from_state(state)
     errors = metadata_errors(state)
-    weighings = state.get("df_weighings", pd.DataFrame())
+    weighings = state.weighings
     if weighings.empty:
         errors.append(t("report_missing_weighings"))
     elif invalid_weighing_rows(weighings):
         errors.append(t("report_invalid_weighings"))
     if not weighings.empty:
-        count = state.get("saved_nb_sample", 0)
+        count = state.sample_count
         try:
             valid_samples = set(range(1, int(count) + 1))
             for label in weighings["N° échantillon"]:

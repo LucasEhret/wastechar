@@ -13,6 +13,8 @@ wastechar/
 ├── i18n.py                     ← FR/EN/ES translations, t()/set_lang()/get_lang()
 ├── helpers.py                  ← Pure utility functions (CSS injection, time parsing, weight lookup…)
 ├── session.py                  ← F5-protection: save/restore/clear session to the OS temp dir
+├── report.py                   ← Typed Report model and shared table schemas, without Streamlit
+├── report_storage.py           ← Versioned report serialization and migration, without UI state
 ├── data.py                     ← Action callbacks: add_weighing, save_metadata, summarize…
 ├── table_entry.py              ← Validate and save table rows as new or corrected weighings
 ├── export.py                   ← build_excel_export, build_zip_export, generate_pdf_report, Dropbox upload
@@ -22,6 +24,7 @@ wastechar/
 │   ├── export_controls.py       ← Generate and download a ZIP in one click from Summary
 │   ├── save_status.py           ← Sidebar save status and retry control
 │   ├── sidebar.py               ← Sidebar: identity, report status, language, and preview settings
+│   ├── report_state.py          ← Adapter between widget state and the canonical Report
 │   ├── tab_metadata.py          ← Tab 1: sampling, sensor passage, operator info, collection times
 │   ├── tab_containers.py        ← Tab 2: container (tare) management
 │   ├── tab_weighing.py          ← Tab 3: weighing entry (table & manual modes) and history
@@ -56,6 +59,7 @@ pip install -r requirements.txt
 streamlit>=1.53
 pandas
 matplotlib
+pillow
 openpyxl
 dropbox
 streamlit-extras
@@ -227,20 +231,20 @@ Tab 2 — Containers
     └── Container name + tare weight (empty box mass)
 
 Tab 3 — Weighing entry (Table mode by default, or Manual mode)
-    └── Table  : one editable grid row per material class — save again to correct its weighing
+    └── Table  : one editable row per recorded weighing, plus blank rows for unrecorded material classes
     └── Manual : one-at-a-time form — sample(s), class, container, gross weight(s), optional photo
         └── Net weight = gross − tare
         └── Stored in df_weighings
 
 Tab 4 — Summary
-    └── Aggregated table + pie chart + per-sample breakdown + missing-class warnings
+    └── Aggregated table + sorted horizontal bar chart + per-sample breakdown + missing-class warnings
         └── Download the ZIP containing Excel + PDF report + photos in one click
             └── Auto-uploaded to Dropbox on download (unless the admin disabled it)
 ```
 
 ---
 
-Gross and tare weights must be finite, non-negative numbers. An explicit 0 kg weighing is valid; gross weight below tare is rejected. Reports with only zero net weights show 0% totals and omit the pie chart.
+Gross and tare weights must be finite, non-negative numbers. An explicit 0 kg weighing is valid; gross weight below tare is rejected. Reports with only zero net weights show 0% totals and omit the sorted horizontal bar chart.
 
 ---
 
@@ -254,7 +258,9 @@ Weighings reference sample numbers; collection times are read from the current s
 
 Each weighing stores the tare used to calculate its net weight. Older sessions infer that tare from their recorded gross and net weights. A container used by any weighing cannot be deleted; remove or correct those weighings first.
 
-Every weighing has a stable ID, including records restored from older sessions. Table entry uses that ID to correct a saved weighing in place; a 10 kg row changed to 12 kg remains one 12 kg weighing. Existing duplicate table rows are flagged for review in the weighing history.
+Every weighing has a stable ID, including records restored from older sessions. Table and Manual modes show the same records, including custom materials and multiple weighings per class. Table entry uses the weighing ID to correct the original record in place; a 10 kg row changed to 12 kg remains one 12 kg weighing, retaining its photo. In multi-sample reports, the table accepts comma-separated sample numbers, including pooled weighings. Unrecorded configured classes have blank rows for entry.
+
+The **Next** buttons save before advancing. Metadata must be valid and successfully saved; Containers adds a pending container entry, then saves; Weighing saves table edits and observations before opening Summary. In Manual mode, Next submits any pending weighing first. Invalid entries or failed saves keep the operator on the current screen. Table drafts show a reminder that Next saves their changes; blank weight rows remain unrecorded.
 
 ```
 Resultat_{Facility}_{Sensor}_{YYYYMMDD_HHMM±HHMM}.zip
@@ -262,12 +268,18 @@ Resultat_{Facility}_{Sensor}_{YYYYMMDD_HHMM±HHMM}.zip
 │   ├── Global results   (one row per sample × class, % of grand total, TOTAL row)
 │   ├── Sample N         (collection times + class table with % of sample total + TOTAL row, per sample)
 │   └── Metadata         (facility, operator, date, sensor, sampling, sensor passage, version, timestamp…)
-├── Resultat_{...}.pdf   (header, global indicators, collection times, pie chart)
+├── Resultat_{...}.pdf   (header, global indicators, collection times, sorted horizontal bar chart)
 └── images/
-    └── {ClassName}.jpg  (one photo per material class, if uploaded via Manual mode)
+    └── {ClassName}_{WeighingID}.jpg / .png  (every weighing photo, in its original format)
 ```
 
 ---
+
+PDF reports embed DejaVu Sans fonts supplied by Matplotlib, preserving supported Unicode characters in names, material labels, and comments. Characters outside the font's coverage appear as `?` in the PDF; the Excel report retains the original text. Excel text cells are written as literal text, including values starting with `=`.
+
+PDF headings, table labels, workflow descriptions, chart labels, and footers use the language selected when the download snapshot is created (FR/EN/ES). Operator-entered text and configured material names are preserved as entered.
+
+Photos are exported once per weighing, with filenames containing the weighing ID. JPEG and PNG formats are detected from the contents; original bytes are retained. Unrecognised attachments are preserved as `.bin` files. Report and photo filenames exclude path separators and reserved characters.
 
 ## Session persistence (F5 protection)
 
@@ -275,7 +287,9 @@ On every data action (add weighing, add container, save metadata…) the session
 
 On page load, a session is restored only when its UUID token is valid and the saved username and facility match the authenticated user and active facility. Invalid or unauthorized URLs receive a fresh token. Legacy files without an owner/facility binding cannot be restored; this protects other users' reports while retaining refresh recovery for newly saved sessions.
 
-The sidebar shows when the session data was last saved on the server. If a write fails, it shows an error and a retry button. Invalid metadata stays marked as unsaved until corrected. Photos are not included in the refresh backup; the sidebar warns about this when photos are present.
+The sidebar shows when the session data was last saved on the server. If a write fails, it shows an error and a retry button. Invalid metadata stays marked as unsaved until corrected. Photos are included in the refresh backup, linked to their weighing IDs.
+
+Backups use a versioned JSON format. Each save writes and flushes a temporary file in the same directory, then atomically replaces the previous backup. Restoration decodes and validates the complete report before changing report state, so a failed restore cannot leave a partially restored report. Older owner-bound backups remain supported; unsupported future versions are rejected.
 
 The session file is deleted when the operator clicks **🆕 Nouvelle saisie / New entry** to start a new test.
 
@@ -285,13 +299,26 @@ The session file is deleted when the operator clicks **🆕 Nouvelle saisie / Ne
 
 ## Architecture notes
 
-- **`st.session_state` as shared context.** `facility_name`, `material_classes`, `sensor_list`, `is_admin`, `all_facilities`, and `lang` are resolved in `app.py` after authentication and stored in session state. All modules read from session state rather than importing module-level globals, which correctly handles multi-user deployments where different users have different facilities in the same server process.
+- **One report model.** `st.session_state["_report"]` owns committed metadata, weighings (including photos), containers, collection times, observations, and facility context. `Report` defines the shared table schemas and creates detached snapshots. Widget values, authentication, navigation, language, draft edits, and save indicators remain separate in Streamlit state. `ui/report_state.py` routes existing callback keys to the model without maintaining duplicate committed values; it also migrates an existing live session on initialization.
+
+- **Report boundaries.** Validation and Excel/PDF/ZIP export accept a `Report`. Deferred downloads receive a detached model snapshot. `report_storage.py` handles versioned serialization and legacy migrations without accessing Streamlit; `session.py` handles identity checks and atomic filesystem writes. Existing backup versions remain supported.
 
 - **Dependency hierarchy** (no circular imports):
   ```
-  config → i18n → helpers → session → data → export → dialogs → ui/* → app
+  report + ui/report_state → helpers → report_storage + session → data → export → dialogs → UI → app
   ```
 
 - **`APP_VERSION`** is computed once at import time from git (`config._get_app_version`), so it stays accurate across environments without manual edits.
 
 - **CSS** is centralized in `styles.css` and injected once per page load via `helpers.inject_css()`.
+
+## Tests
+
+Install test dependencies and run the suite:
+
+```bash
+pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
+```
+
+The export tests read generated PDFs and Excel workbooks and compare archived photo bytes with the originals.

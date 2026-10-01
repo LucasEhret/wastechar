@@ -1,11 +1,13 @@
+from ui.report_state import app_state
 import streamlit as st
 
 from data import add_container, remove_container
 from i18n import t
+from session import save_session
 
 
 def render_tab_containers() -> None:
-    if st.session_state.get("show_tutorials", True):
+    if app_state.get("show_tutorials", True):
         with st.expander(t("cont_guide_title"), expanded=True):
             st.markdown(t("cont_guide_body"))
 
@@ -14,8 +16,8 @@ def render_tab_containers() -> None:
     with col_left:
         with st.container(border=True):
             st.markdown(t("cont_add_title"))
-            if st.session_state["container_error"]:
-                st.warning(st.session_state["container_error"])
+            if app_state["container_error"]:
+                st.warning(app_state["container_error"])
 
             st.text_input(
                 t("cont_name_label"),
@@ -39,12 +41,12 @@ def render_tab_containers() -> None:
     with col_right:
         with st.container(border=True):
             st.markdown(t("cont_list_title"))
-            if st.session_state["df_containers"].empty:
+            if app_state["df_containers"].empty:
                 st.info(t("cont_empty_info"))
             else:
-                for _, row in st.session_state["df_containers"].iterrows():
+                for _, row in app_state["df_containers"].iterrows():
                     used_count = int((
-                        st.session_state["df_weighings"]["Contenant utilisé"] == row["Contenant"]
+                        app_state["df_weighings"]["Contenant utilisé"] == row["Contenant"]
                     ).sum())
                     with st.container(border=True):
                         c_info, c_action = st.columns([4, 1], vertical_alignment="center")
@@ -65,9 +67,16 @@ def render_tab_containers() -> None:
     col_back, col_next = st.columns(2)
     with col_back:
         if st.button(t("btn_back"), width="stretch"):
-            st.session_state.step_index = 0
+            app_state.step_index = 0
             st.rerun()
     with col_next:
         if st.button(t("btn_next_weighing"), width="stretch", type="primary"):
-            st.session_state.step_index = 2
-            st.rerun()
+            has_entry = bool(app_state.get("container_name", "").strip()) or bool(
+                app_state.get("container_weight", 0.0)
+            )
+            saved = add_container() if has_entry else save_session()
+            if saved:
+                app_state["step_index"] = 2
+                st.rerun()
+            else:
+                st.error(app_state.get("container_error") or t("sidebar_save_failed"))
